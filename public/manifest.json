@@ -1,0 +1,19 @@
+{
+  "name": "Fluxa Tiendas - Admin & Dashboard",
+  "short_name": "Fluxa Admin",
+  "description": "Panel de administración móvil para gestionar tu tienda online, catálogo y reservas directo por WhatsApp.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0D1321",
+  "theme_color": "#00D7C0",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "prefer_related_applications": false
+}

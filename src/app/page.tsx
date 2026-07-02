@@ -1,65 +1,339 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import Navbar from '@/components/Navbar';
+import { 
+  ArrowRight, CheckCircle2, Smartphone, Zap, ShoppingBag, 
+  ShieldCheck, DollarSign, Sparkles, Utensils, Scissors, Building2, 
+  HelpCircle, Star, Clock, Gift 
+} from 'lucide-react';
 
 export default function Home() {
+  const [isAnnual, setIsAnnual] = useState(false);
+
+  const categories = [
+    {
+      id: 'gastro',
+      title: 'Negocios Gastronómicos',
+      icon: <Utensils className="text-amber-400" size={24} />,
+      image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80',
+      items: ['Restaurantes y Cafés', 'Pizzerías y Hamburgueserías', 'Pastelerías y Panaderías', 'Comida rápida y Delivery', 'Cervecerías y Bares'],
+      whyTitle: '¿Por qué elegir Fluxa en Gastronomía?',
+      whyDesc: 'Olvídate de regalar el 30% de tus ventas a aplicaciones externas de delivery. Con Fluxa tienes tu propio Menú Digital en alta definición donde tu cliente pide desde el celular y el detalle llega ordenado directo a la cocina por WhatsApp con 0% de comisión.',
+      color: 'from-amber-500 to-orange-600'
+    },
+    {
+      id: 'retail',
+      title: 'Comercios y Tiendas Retail',
+      icon: <ShoppingBag className="text-cyan-400" size={24} />,
+      image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80',
+      items: ['Tiendas de ropa y calzado', 'Electrónica y Accesorios', 'Minimercados y Almacenes', 'Regalerías y Decoración', 'Dietéticas y Orgánicos'],
+      whyTitle: '¿Por qué elegir Fluxa para tu Comercio?',
+      whyDesc: 'Las plataformas tradicionales te cobran entre el 4% y el 8% de comisión bancaria por venta y retienen tu dinero por días. En Fluxa tu catálogo es rápido, elegante y todo el dinero que cobras va 100% a tu bolsillo de inmediato sin intermediarios.',
+      color: 'from-cyan-500 to-blue-600'
+    },
+    {
+      id: 'services',
+      title: 'Servicios y Citas / Turnos',
+      icon: <Scissors className="text-pink-400" size={24} />,
+      image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80',
+      items: ['Peluquerías y Barberías', 'Centros de Estética y Nails', 'Consultorios y Salud', 'Talleres y Mecánica 24hs', 'Servicios Profesionales'],
+      whyTitle: '¿Por qué elegir Fluxa en Servicios?',
+      whyDesc: 'Tus clientes no solo compran productos; nuestra plantilla especializada les permite seleccionar el servicio y agendar el día y la hora exacta para su turno por WhatsApp. Olvídate de interminables audios para coordinar un horario.',
+      color: 'from-pink-500 to-rose-600'
+    },
+    {
+      id: 'booking',
+      title: 'Alquileres y Espacios',
+      icon: <Building2 className="text-emerald-400" size={24} />,
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&q=80',
+      items: ['Cabañas y Alojamiento turistico', 'Hoteles y Posadas', 'Salones de Eventos', 'Canchas de Fútbol y Pádel', 'Alquiler de Vehículos'],
+      whyTitle: '¿Por qué elegir Fluxa para Reservas?',
+      whyDesc: 'Un formato visual estilo Airbnb donde tus huéspedes pueden ver fotos, servicios incluidos y consultar disponibilidad de fechas de Check-in y Check-out en segundos. Trato directo y sin pagar costosas comisiones de hospedaje.',
+      color: 'from-emerald-500 to-teal-600'
+    }
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+
+      {/* Hero Section */}
+      <section className="relative pt-24 pb-20 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(0,215,192,0.1)] border border-[rgba(0,215,192,0.3)] text-[var(--accent-cyan)] text-sm font-semibold mb-8 animate-pulse">
+            <Zap size={16} /> La nueva era de las plataformas web en Latinoamérica
+          </div>
+          
+          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
+            Tu propia plataforma web. <br />
+            <span className="text-gradient">De cero a vendiendo por WhatsApp.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          
+          <p className="max-w-3xl mx-auto text-xl text-[var(--text-secondary)] mb-12 leading-relaxed">
+            Sin comisiones abusivas por venta ni conocimientos técnicos. Elige tu plantilla ideal según tu rubro, personaliza tu marca y empieza a vender hoy mismo bajo nuestro dominio oficial.
           </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-5">
+            <Link href="/register" className="btn-primary text-lg px-8 py-4 w-full sm:w-auto shadow-xl shadow-cyan-500/20">
+              Crear mi Web Ahora <ArrowRight size={20} />
+            </Link>
+            <Link href="#planes" className="btn-secondary text-lg px-8 py-4 w-full sm:w-auto">
+              Ver Planes y Precios
+            </Link>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* SECCIÓN INTERACTIVA DE RUBROS CON HOVER FLIP CARDS */}
+      <section className="py-24 relative bg-[rgba(13,19,33,0.6)] border-y border-[var(--border-glass)]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-mono uppercase tracking-widest text-[var(--accent-cyan)] bg-[rgba(0,215,192,0.1)] px-3 py-1.5 rounded-full font-bold">
+              Versatilidad Total
+            </span>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-4 mb-4">
+              No importa el tipo de negocio que tengas
+            </h2>
+            <p className="text-lg text-[var(--text-secondary)]">
+              En <strong className="text-white">Fluxa Tiendas</strong> somos tus aliados tecnológicos. Pasa el mouse sobre cada rubro para descubrir por qué somos la mejor opción para tu comercio.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {categories.map((cat) => (
+              <div 
+                key={cat.id} 
+                className="group relative h-[450px] rounded-3xl overflow-hidden border border-[var(--border-glass)] bg-[rgba(13,19,33,0.9)] transition-all duration-500 hover:border-cyan-400/80 hover:shadow-2xl hover:shadow-cyan-500/10 cursor-pointer flex flex-col"
+              >
+                {/* CAPA FRONTAL (Por defecto visible) */}
+                <div className="absolute inset-0 flex flex-col justify-between p-6 z-10 transition-all duration-500 group-hover:opacity-0 group-hover:scale-95 pointer-events-auto group-hover:pointer-events-none">
+                  <div>
+                    <div className="h-44 w-full -mx-6 -mt-6 mb-6 relative overflow-hidden">
+                      <img src={cat.image} alt={cat.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(13,19,33,1)] via-transparent to-transparent" />
+                    </div>
+
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2.5 rounded-xl bg-black/40 border border-white/10">
+                        {cat.icon}
+                      </div>
+                      <h3 className="font-extrabold text-white text-lg leading-tight">{cat.title}</h3>
+                    </div>
+
+                    <ul className="space-y-2 text-xs text-[var(--text-secondary)]">
+                      {cat.items.map((item, idx) => (
+                        <li key={idx} className="flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 shrink-0" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/10 flex items-center justify-between text-xs font-bold text-cyan-400">
+                    <span className="flex items-center gap-1.5"><Sparkles size={14} /> ¿Por qué Fluxa?</span>
+                    <span className="text-[10px] bg-cyan-500/20 px-2.5 py-1 rounded-full text-white">Ver info ↗</span>
+                  </div>
+                </div>
+
+                {/* CAPA TRASERA / OVERLAY HOVER FLIP (Se revela al poner el mouse) */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} p-7 flex flex-col justify-between z-20 opacity-0 transform translate-y-6 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto text-white shadow-inner`}>
+                  <div>
+                    <div className="flex items-center justify-between mb-6">
+                      <span className="bg-black/30 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider text-white border border-white/20">
+                        Ventaja Exclusiva
+                      </span>
+                      <HelpCircle size={22} className="text-white/80" />
+                    </div>
+
+                    <h3 className="text-xl font-black mb-3 leading-tight drop-shadow-sm">
+                      {cat.whyTitle}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-white/95 font-medium drop-shadow-sm">
+                      {cat.whyDesc}
+                    </p>
+                  </div>
+
+                  <div className="pt-4 border-t border-white/20">
+                    <Link 
+                      href="/register" 
+                      className="w-full py-3 bg-black/80 hover:bg-black text-white rounded-xl text-center font-bold text-xs uppercase tracking-wider transition-all block shadow-lg flex items-center justify-center gap-2"
+                    >
+                      Empezar con esta plantilla <ArrowRight size={14} />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* PLANES Y PRECIOS */}
+      <section id="planes" className="py-24 relative">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <span className="text-xs font-mono uppercase tracking-widest text-[var(--accent-cyan)] bg-[rgba(0,215,192,0.1)] px-3 py-1.5 rounded-full font-bold">
+              Inversión Transparente
+            </span>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-white mt-4 mb-4">
+              Planes diseñados para impulsar tu negocio
+            </h2>
+            <p className="text-lg text-[var(--text-secondary)] mb-8">
+              Sin comisiones por venta, sin sorpresas ocultas. Elige autogestionar tu web o déjalo todo en nuestras manos.
+            </p>
+
+            {/* Toggle Mensual / Anual con Regalo */}
+            <div className="inline-flex items-center gap-4 bg-[rgba(13,19,33,0.9)] p-2 rounded-2xl border border-[var(--border-glass)]">
+              <button 
+                onClick={() => setIsAnnual(false)}
+                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${!isAnnual ? 'bg-[var(--accent-cyan)] text-black shadow-lg' : 'text-[var(--text-secondary)] hover:text-white'}`}
+              >
+                Pago Mensual
+              </button>
+              <button 
+                onClick={() => setIsAnnual(true)}
+                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${isAnnual ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-lg' : 'text-[var(--text-secondary)] hover:text-white'}`}
+              >
+                Pago Anual <span className="bg-black text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-black flex items-center gap-1"><Gift size={12} /> 2 MESES GRATIS</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
+            {/* PLAN 1: BÁSICO - AUTOGESTIÓN */}
+            <div className="glass-panel p-8 md:p-10 flex flex-col justify-between border-2 border-[var(--border-glass)] hover:border-cyan-400/50 transition-all relative overflow-hidden">
+              <div>
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <span className="text-xs font-mono text-cyan-400 font-bold uppercase tracking-wider block mb-1">Plan 1</span>
+                    <h3 className="text-2xl font-black text-white">Básico • Autogestión</h3>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                    <Zap size={24} />
+                  </div>
+                </div>
+
+                <div className="mb-6 pb-6 border-b border-[var(--border-glass)]">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-black text-white">${isAnnual ? '100' : '10'}</span>
+                    <span className="text-sm font-bold text-[var(--text-secondary)]">USD / {isAnnual ? 'año entero' : 'mes'}</span>
+                  </div>
+                  {isAnnual ? (
+                    <p className="text-xs text-amber-400 font-bold mt-2 flex items-center gap-1">
+                      <Gift size={14} /> ¡Pagando el año te regalamos 2 meses gratis! (Equivale a $8.33/mes)
+                    </p>
+                  ) : (
+                    <p className="text-xs text-[var(--text-secondary)] mt-2">Facturación mensual simple. Cancela cuando quieras.</p>
+                  )}
+                </div>
+
+                <ul className="space-y-4 text-sm text-[var(--text-secondary)] mb-8">
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-cyan-400 shrink-0" /> Acceso a las 6 plantillas de negocio
+                  </li>
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-cyan-400 shrink-0" /> Catálogo ilimitado de productos o servicios
+                  </li>
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-cyan-400 shrink-0" /> Carrito y reservas directo a tu WhatsApp
+                  </li>
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-cyan-400 shrink-0" /> <strong className="text-cyan-300">0% comisiones por venta</strong> (el 100% es tuyo)
+                  </li>
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-cyan-400 shrink-0" /> Dominio oficial <code className="text-xs font-mono text-cyan-300">tunegocio.fluxa.com</code>
+                  </li>
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-cyan-400 shrink-0" /> Autogestión fácil 100% desde tu celular
+                  </li>
+                </ul>
+              </div>
+
+              <Link 
+                href="/register?plan=basic" 
+                className="btn-secondary w-full justify-center py-4 text-base font-bold text-cyan-300 border-cyan-500/40 hover:bg-cyan-500/10"
+              >
+                Seleccionar Plan Básico <ArrowRight size={18} />
+              </Link>
+            </div>
+
+            {/* PLAN 2: PRO - LLAVE EN MANO */}
+            <div className="glass-panel p-8 md:p-10 flex flex-col justify-between border-2 border-amber-500/80 hover:border-amber-400 transition-all relative overflow-hidden bg-gradient-to-b from-[rgba(245,158,11,0.08)] to-transparent shadow-2xl shadow-amber-500/10">
+              <div className="absolute top-0 right-0 bg-gradient-to-l from-amber-500 to-orange-500 text-black text-[10px] font-black uppercase px-4 py-1.5 rounded-bl-xl tracking-wider shadow-md">
+                ⭐ Recomendado • Llave en Mano
+              </div>
+
+              <div>
+                <div className="flex justify-between items-start mb-6">
+                  <div>
+                    <span className="text-xs font-mono text-amber-400 font-bold uppercase tracking-wider block mb-1">Plan 2</span>
+                    <h3 className="text-2xl font-black text-white">PRO • Llave en Mano</h3>
+                  </div>
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-400">
+                    <Star size={24} />
+                  </div>
+                </div>
+
+                <div className="mb-6 pb-6 border-b border-[var(--border-glass)]">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-black text-gradient">${isAnnual ? '200' : '100'}</span>
+                    <span className="text-sm font-bold text-[var(--text-secondary)]">USD {isAnnual ? 'primer año completo' : 'pago inicial'}</span>
+                  </div>
+                  {isAnnual ? (
+                    <p className="text-xs text-amber-400 font-bold mt-2 flex items-center gap-1">
+                      <Gift size={14} /> Incluye creación ($100) + 1 año de suscripción con 2 cuotas gratis ($100).
+                    </p>
+                  ) : (
+                    <p className="text-xs text-amber-300 mt-2">
+                      Pago inicial $100 por creación de tienda + luego $10 USD/mes de mantenimiento.
+                    </p>
+                  )}
+                </div>
+
+                <ul className="space-y-4 text-sm text-[var(--text-secondary)] mb-8">
+                  <li className="flex items-center gap-3 text-white font-bold bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/30">
+                    <Clock size={20} className="text-amber-400 shrink-0" /> ¡Nosotros te creamos y diseñamos tu web lista para vender en 48 horas!
+                  </li>
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-amber-400 shrink-0" /> <strong className="text-amber-300">Carga de tus primeros 20 productos</strong> con fotos y precios
+                  </li>
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-amber-400 shrink-0" /> Configuración de tu logo, colores y banner de promoción
+                  </li>
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-amber-400 shrink-0" /> Asesoría comercial y soporte técnico VIP directo de Fluxa UY
+                  </li>
+                  <li className="flex items-center gap-3 text-white font-medium">
+                    <CheckCircle2 size={18} className="text-amber-400 shrink-0" /> Todo lo incluido en el Plan Básico (0% comisiones, catálogo infinito)
+                  </li>
+                </ul>
+              </div>
+
+              <Link 
+                href="/register?plan=pro" 
+                className="w-full py-4 rounded-xl font-black text-base text-black bg-gradient-to-r from-amber-400 via-yellow-400 to-orange-400 hover:brightness-110 transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20"
+              >
+                Quiero que me creen mi web en 48hs <ArrowRight size={18} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-[var(--border-glass)] py-12 text-center text-sm text-[var(--text-secondary)] bg-[rgba(13,19,33,0.9)]">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© {new Date().getFullYear()} Fluxa Tiendas. Tecnología e ingeniería de software en Uruguay.</p>
+          <div className="flex gap-6 text-xs font-semibold">
+            <Link href="#planes" className="hover:text-white">Planes</Link>
+            <Link href="/register" className="hover:text-white">Registrar Negocio</Link>
+            <Link href="/login" className="hover:text-white">Iniciar Sesión</Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
