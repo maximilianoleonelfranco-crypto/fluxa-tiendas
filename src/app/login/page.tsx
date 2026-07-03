@@ -15,27 +15,57 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
-    // Verificar si hay una tienda en sesión o crear una de demostración activa para login
+    // 1. Buscar en el catálogo global de tiendas registradas
+    const allStoresRaw = localStorage.getItem('fluxa_all_stores');
+    const allStores: any[] = allStoresRaw ? JSON.parse(allStoresRaw) : [];
+    
+    const foundStore = allStores.find(s => s.email?.toLowerCase() === email.toLowerCase());
+
+    if (foundStore) {
+      // Verificar contraseña (si fue guardada)
+      if (foundStore.password && foundStore.password !== password) {
+        setError('Contraseña incorrecta para esta cuenta.');
+        return;
+      }
+      localStorage.setItem('fluxa_current_store', JSON.stringify(foundStore));
+      if (foundStore.subscription_status !== 'active') {
+        router.push('/subscription');
+      } else {
+        router.push('/dashboard');
+      }
+      return;
+    }
+
+    // 2. Verificar si hay una tienda en sesión actual cuyo email coincida
     const saved = localStorage.getItem('fluxa_current_store');
     if (saved) {
       const store = JSON.parse(saved);
-      if (store.subscription_status !== 'active') {
-        router.push('/subscription');
+      if (store.email?.toLowerCase() === email.toLowerCase() || email === 'demo@fluxa.com') {
+        if (store.subscription_status !== 'active') {
+          router.push('/subscription');
+          return;
+        }
+        router.push('/dashboard');
         return;
       }
-      router.push('/dashboard');
-    } else {
-      // Si entra con cuenta demo
-      localStorage.setItem('fluxa_current_store', JSON.stringify({
+    }
+
+    // 3. Si entra con cuenta demo o email de prueba
+    if (email === 'demo@fluxa.com' || email.includes('demo')) {
+      const demoStore = {
         id: "store-demo-101",
         name: "Panadería San José",
         slug: "panaderia-sanjose",
         whatsapp_number: "59894968558",
         email: email || "demo@fluxa.com",
         subscription_status: 'active'
-      }));
+      };
+      localStorage.setItem('fluxa_current_store', JSON.stringify(demoStore));
       router.push('/dashboard');
+      return;
     }
+
+    setError(`No se encontró ninguna tienda registrada con el correo "${email}". Verifica tu escritura o haz clic abajo en "Regístrate gratis".`);
   };
 
   return (

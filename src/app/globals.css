@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --bg-primary: #0D1321;
-  --bg-surface: rgba(71, 85, 105, 0.1);
-  --bg-surface-hover: rgba(71, 85, 105, 0.2);
-  --border-glass: rgba(71, 85, 105, 0.3);
-  --accent-cyan: #00D7C0;
-  --accent-blue: #5C5CFF;
-  --text-primary: #FFFFFF;
-  --text-secondary: #94A3B8;
+  --bg-primary: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #F1F5F9;
+  --border-glass: #E2E8F0;
+  --accent-cyan: #10B981;
+  --accent-blue: #2563EB;
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
   --radius-lg: 24px;
   --radius-md: 16px;
   --radius-sm: 8px;
@@ -27,8 +27,8 @@
 }
 
 body {
-  background: radial-gradient(circle at 10% 20%, rgba(92, 92, 255, 0.08) 0%, transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(0, 215, 192, 0.08) 0%, transparent 40%),
+  background: radial-gradient(circle at 15% 15%, rgba(16, 185, 129, 0.06) 0%, transparent 45%),
+              radial-gradient(circle at 85% 85%, rgba(37, 99, 235, 0.06) 0%, transparent 45%),
               var(--bg-primary);
   background-color: var(--bg-primary);
   color: var(--text-primary);
@@ -38,29 +38,27 @@ body {
 
 .glass-panel {
   background: var(--bg-surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-glass);
   border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
 }
 
 .text-gradient {
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-cyan) 50%, var(--accent-blue) 100%);
+  background: linear-gradient(135deg, #0F172A 0%, #059669 55%, #2563EB 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+  background: linear-gradient(135deg, #10B981, #059669);
   color: #fff;
   border: none;
   padding: 0.8rem 1.8rem;
   border-radius: 50px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(0, 215, 192, 0.3);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -69,42 +67,46 @@ body {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(92, 92, 255, 0.4);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+  background: linear-gradient(135deg, #059669, #047857);
 }
 
 .btn-secondary {
-  background: rgba(71, 85, 105, 0.2);
-  color: #fff;
-  border: 1px solid var(--border-glass);
+  background: #FFFFFF;
+  color: #0F172A;
+  border: 1px solid #CBD5E1;
   padding: 0.8rem 1.8rem;
   border-radius: 50px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
 }
 
 .btn-secondary:hover {
-  background: rgba(71, 85, 105, 0.4);
-  border-color: var(--accent-cyan);
+  background: #F8FAFC;
+  border-color: #94A3B8;
+  color: #059669;
 }
 
 .form-control {
   width: 100%;
   padding: 0.8rem 1.2rem;
   border-radius: var(--radius-sm);
-  background: rgba(13, 19, 33, 0.8);
-  border: 1px solid var(--border-glass);
-  color: var(--text-primary);
+  background: #FFFFFF;
+  border: 1px solid #CBD5E1;
+  color: #0F172A;
   font-size: 1rem;
-  transition: border-color 0.3s ease;
+  transition: border-color 0.2s ease;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
 }
 
 .form-control:focus {
   outline: none;
-  border-color: var(--accent-cyan);
-  box-shadow: 0 0 0 2px rgba(0, 215, 192, 0.2);
+  border-color: #10B981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }

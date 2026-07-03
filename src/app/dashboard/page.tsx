@@ -849,7 +849,7 @@ export default function DashboardPage() {
                               {ord.date_val ? `🗓️ ${ord.date_val}` : 'No aplica fecha específica'}
                             </div>
                             {ord.time_val && <div className="text-amber-300">⏰ {ord.time_val}</div>}
-                            {ord.notes && <div className="text-gray-300 italic mt-1">📝 "{ord.notes}"</div>}
+                            {ord.notes && <div className="text-gray-300 italic mt-1">📝 &quot;{ord.notes}&quot;</div>}
                           </div>
                           <div className="space-y-1">
                             <span className="font-bold text-gray-400 block">🛍️ Ítems del {currentTmpl.movementName}:</span>

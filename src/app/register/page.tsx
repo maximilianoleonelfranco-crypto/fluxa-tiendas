@@ -37,21 +37,41 @@ export default function RegisterPage() {
     setError('');
 
     try {
+      const allStoresRaw = localStorage.getItem('fluxa_all_stores');
+      const allStores: any[] = allStoresRaw ? JSON.parse(allStoresRaw) : [];
+
+      // Validar si el email ya está registrado para no pisar/sobrescribir cuentas
+      const existingEmail = allStores.find(s => s.email?.toLowerCase() === email.toLowerCase());
+      if (existingEmail) {
+        throw new Error(`Ya existe una tienda registrada con el correo "${email}". Por favor, haz clic abajo en "Inicia Sesión aquí" para administrarla sin crear otra encima.`);
+      }
+
+      // Validar si el slug (dirección web) ya está ocupado por otro comercio
+      const existingSlug = allStores.find(s => s.slug?.toLowerCase() === slug.toLowerCase());
+      if (existingSlug) {
+        throw new Error(`El enlace "tiendas.fluxauy.com/t/${slug}" ya se encuentra registrado y ocupado por otro negocio. Por favor elige una variación (ej. "${slug}-uy" o "${slug}-oficial").`);
+      }
+
       const mockStoreId = "store-" + Math.random().toString(36).substring(2, 9);
       const tmpl = STORE_TEMPLATES[selectedTemplate] || STORE_TEMPLATES[DEFAULT_TEMPLATE];
       
-      // Guardar en localStorage para simular la sesión activa del comerciante
-      localStorage.setItem('fluxa_current_store', JSON.stringify({
+      const newStore = {
         id: mockStoreId,
         name: storeName,
         slug: slug,
         whatsapp_number: whatsapp,
         email: email,
+        password: password,
         template_id: selectedTemplate,
         theme_color: tmpl.themeColor,
         font_family: tmpl.fontFamily === 'font-serif' ? 'elegant' : tmpl.fontFamily === 'font-mono' ? 'playful' : 'modern',
         subscription_status: 'pending' // SUSCRIPCIÓN OBLIGATORIA PENDIENTE
-      }));
+      };
+
+      // Guardar en el catálogo general de tiendas y como tienda activa actual
+      allStores.push(newStore);
+      localStorage.setItem('fluxa_all_stores', JSON.stringify(allStores));
+      localStorage.setItem('fluxa_current_store', JSON.stringify(newStore));
 
       // Redirigir a la pantalla de pago de suscripción obligatoria
       router.push('/subscription');
