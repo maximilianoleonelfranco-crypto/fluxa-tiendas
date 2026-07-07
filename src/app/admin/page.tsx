@@ -6,8 +6,34 @@ import { useRouter } from 'next/navigation';
 import { 
   ShieldAlert, Store, Users, DollarSign, CheckCircle2, XCircle, Clock, 
   ExternalLink, Search, Plus, Filter, RefreshCw, LogIn, Edit, Trash2, 
-  Settings, AlertTriangle, ArrowRight, Lock, Eye, Check, AlertCircle 
+  Settings, AlertTriangle, ArrowRight, Lock, Eye, Check, AlertCircle, CreditCard, Globe 
 } from 'lucide-react';
+
+interface PaymentConfig {
+  mercadopagoLinkBasicMonthly: string;
+  mercadopagoLinkBasicAnnual: string;
+  mercadopagoLinkProMonthly: string;
+  mercadopagoLinkProAnnual: string;
+  mercadopagoAlias: string;
+  stripeLinkBasicMonthly: string;
+  stripeLinkBasicAnnual: string;
+  stripeLinkProMonthly: string;
+  stripeLinkProAnnual: string;
+  paypalEmail: string;
+}
+
+const defaultPaymentConfig: PaymentConfig = {
+  mercadopagoLinkBasicMonthly: "https://link.mercadopago.com.uy/fluxatiendas",
+  mercadopagoLinkBasicAnnual: "https://link.mercadopago.com.uy/fluxatiendas",
+  mercadopagoLinkProMonthly: "https://link.mercadopago.com.uy/fluxatiendas",
+  mercadopagoLinkProAnnual: "https://link.mercadopago.com.uy/fluxatiendas",
+  mercadopagoAlias: "FLUXA.TIENDAS.UY",
+  stripeLinkBasicMonthly: "https://buy.stripe.com/test",
+  stripeLinkBasicAnnual: "https://buy.stripe.com/test",
+  stripeLinkProMonthly: "https://buy.stripe.com/test",
+  stripeLinkProAnnual: "https://buy.stripe.com/test",
+  paypalEmail: "cobros@fluxauy.com"
+};
 
 interface StoreItem {
   id: string;
@@ -91,6 +117,11 @@ export default function SuperAdminPage() {
   const [showNewStoreModal, setShowNewStoreModal] = useState(false);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
 
+  // Configuración de Cuentas de Cobro de Fluxa (Dueño)
+  const [showPayModal, setShowPayModal] = useState(false);
+  const [payConfig, setPayConfig] = useState<PaymentConfig>(defaultPaymentConfig);
+  const [savePaySuccess, setSavePaySuccess] = useState(false);
+
   // Formulario de nueva tienda manual
   const [newStoreName, setNewStoreName] = useState('');
   const [newStoreSlug, setNewStoreSlug] = useState('');
@@ -99,6 +130,14 @@ export default function SuperAdminPage() {
   const [newStorePhone, setNewStorePhone] = useState('598');
 
   useEffect(() => {
+    // Cargar configuración de cobros del dueño
+    const savedConfig = localStorage.getItem('fluxa_payment_gateways');
+    if (savedConfig) {
+      try {
+        setPayConfig({ ...defaultPaymentConfig, ...JSON.parse(savedConfig) });
+      } catch (e) {}
+    }
+
     // Cargar todas las tiendas
     const savedAll = localStorage.getItem('fluxa_all_stores');
     let loadedStores: StoreItem[] = [];
@@ -160,6 +199,17 @@ export default function SuperAdminPage() {
     setTimeout(() => {
       setActionMessage(null);
     }, 3500);
+  };
+
+  const handleSavePayConfig = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('fluxa_payment_gateways', JSON.stringify(payConfig));
+    setSavePaySuccess(true);
+    showNotification("💾 Pasarelas de cobro oficiales conectadas y guardadas. Ahora el dinero de tus clientes irá directo a tus cuentas.");
+    setTimeout(() => {
+      setSavePaySuccess(false);
+      setShowPayModal(false);
+    }, 2000);
   };
 
   // Cambiar estado de suscripción (Activar o Suspender por falta de pago)
@@ -297,12 +347,12 @@ export default function SuperAdminPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/subscription"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all border border-slate-700"
+            <button
+              onClick={() => setShowPayModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all border border-slate-700 shadow-md"
             >
-              <Settings size={15} className="text-emerald-400" /> Cuentas de Cobro (Stripe/MP)
-            </Link>
+              <CreditCard size={15} className="text-emerald-400" /> Cuentas de Cobro (Stripe/MP/PayPal)
+            </button>
             <button
               onClick={() => setShowNewStoreModal(true)}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold shadow-lg shadow-emerald-600/30 transition-all"
@@ -366,19 +416,19 @@ export default function SuperAdminPage() {
           <div className="p-6 rounded-3xl bg-slate-800/80 border border-slate-700/80 shadow-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
-                <span>Acción Rápida</span>
-                <Users className="text-indigo-400" size={18} />
+                <span>Pasarelas de Cobro</span>
+                <Globe className="text-indigo-400" size={18} />
               </div>
               <p className="text-xs text-slate-300 font-medium leading-relaxed">
-                Revisa los cobros mensuales en tus cuentas bancarias y activa aquí a los clientes.
+                Conecta tus cuentas para que las suscripciones mensuales te caigan directo.
               </p>
             </div>
-            <Link
-              href="/subscription"
-              className="text-xs font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 mt-2"
+            <button
+              onClick={() => setShowPayModal(true)}
+              className="text-xs font-extrabold text-indigo-400 hover:text-indigo-300 flex items-center gap-1 mt-2 text-left"
             >
-              Ver pasarelas configuradas <ArrowRight size={13} />
-            </Link>
+              ⚙️ Configurar pasarelas <ArrowRight size={13} />
+            </button>
           </div>
         </div>
 
@@ -686,6 +736,140 @@ export default function SuperAdminPage() {
                   className="px-5 py-3 bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold text-xs rounded-xl transition-all"
                 >
                   Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE CONFIGURACIÓN DE PASARELAS DE COBRO PARA TUS CLIENTES */}
+      {showPayModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 rounded-3xl max-w-2xl w-full p-6 md:p-8 border border-slate-700 shadow-2xl relative my-8 text-left">
+            <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold border border-emerald-500/20">
+                  <CreditCard size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white leading-tight">Configuración de Cuentas de Cobro</h3>
+                  <p className="text-xs text-slate-400">Pega aquí tus enlaces para que las tiendas creadas te paguen directamente.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowPayModal(false)}
+                className="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800 transition-all font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {savePaySuccess && (
+              <div className="mb-6 p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500 text-emerald-300 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 size={18} /> ¡Listo! Pasarelas conectadas. Tus clientes pagarán a estas cuentas a partir de ahora.
+              </div>
+            )}
+
+            <form onSubmit={handleSavePayConfig} className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
+              {/* MERCADO PAGO URUGUAY */}
+              <div className="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-4">
+                <div className="flex items-center gap-2 text-cyan-400 font-extrabold text-sm border-b border-slate-700 pb-2">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400" /> Mercado Pago (Uruguay / Latam)
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Tu Alias o CVU/CBU principal:</label>
+                  <input
+                    type="text"
+                    value={payConfig.mercadopagoAlias}
+                    onChange={(e) => setPayConfig({...payConfig, mercadopagoAlias: e.target.value})}
+                    placeholder="Ej: FLUXA.TIENDAS.UY"
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-900 border border-slate-700 text-cyan-300 font-mono font-bold focus:outline-none focus:border-cyan-400"
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">Link Plan Básico ($10 USD / mes):</label>
+                    <input
+                      type="text"
+                      value={payConfig.mercadopagoLinkBasicMonthly}
+                      onChange={(e) => setPayConfig({...payConfig, mercadopagoLinkBasicMonthly: e.target.value})}
+                      placeholder="https://link.mercadopago.com.uy/..."
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-200 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">Link Plan PRO ($100 USD inicial):</label>
+                    <input
+                      type="text"
+                      value={payConfig.mercadopagoLinkProMonthly}
+                      onChange={(e) => setPayConfig({...payConfig, mercadopagoLinkProMonthly: e.target.value})}
+                      placeholder="https://link.mercadopago.com.uy/..."
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-200 font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* STRIPE GLOBAL */}
+              <div className="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-4">
+                <div className="flex items-center gap-2 text-indigo-400 font-extrabold text-sm border-b border-slate-700 pb-2">
+                  <span className="w-2 h-2 rounded-full bg-indigo-400" /> Stripe Global (Tarjetas Internacionales / Apple Pay)
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">Link Stripe Plan Básico ($10 USD):</label>
+                    <input
+                      type="text"
+                      value={payConfig.stripeLinkBasicMonthly}
+                      onChange={(e) => setPayConfig({...payConfig, stripeLinkBasicMonthly: e.target.value})}
+                      placeholder="https://buy.stripe.com/..."
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-200 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] text-slate-400 mb-1">Link Stripe Plan PRO ($100 USD):</label>
+                    <input
+                      type="text"
+                      value={payConfig.stripeLinkProMonthly}
+                      onChange={(e) => setPayConfig({...payConfig, stripeLinkProMonthly: e.target.value})}
+                      placeholder="https://buy.stripe.com/..."
+                      className="w-full px-3 py-2 text-xs rounded-xl bg-slate-900 border border-slate-700 text-slate-200 font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* PAYPAL CORPORATE */}
+              <div className="p-5 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-3">
+                <div className="flex items-center gap-2 text-amber-400 font-extrabold text-sm border-b border-slate-700 pb-2">
+                  <span className="w-2 h-2 rounded-full bg-amber-400" /> PayPal Corporativo (Clientes USA & Europa)
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Tu Correo Electrónico de PayPal:</label>
+                  <input
+                    type="email"
+                    value={payConfig.paypalEmail}
+                    onChange={(e) => setPayConfig({...payConfig, paypalEmail: e.target.value})}
+                    placeholder="cobros@fluxauy.com"
+                    className="w-full px-3.5 py-2.5 text-xs rounded-xl bg-slate-900 border border-slate-700 text-amber-300 font-mono focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 flex items-center gap-3 border-t border-slate-800">
+                <button
+                  type="submit"
+                  className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
+                >
+                  <Check size={16} /> Guardar Pasarelas en Vivo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPayModal(false)}
+                  className="px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition-all"
+                >
+                  Cerrar
                 </button>
               </div>
             </form>
