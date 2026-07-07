@@ -289,7 +289,14 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/admin" 
+              className="px-3.5 py-2 rounded-xl bg-slate-900 text-amber-400 hover:bg-slate-800 font-extrabold text-xs shadow-sm flex items-center gap-1.5 border border-slate-700 transition-all"
+              title="Panel Superadmin para el dueño de la plataforma (Control de todas las tiendas y cobros)"
+            >
+              👑 Panel Dueño
+            </Link>
             <Link 
               href={`/t/${storeData.slug}`} 
               target="_blank"
