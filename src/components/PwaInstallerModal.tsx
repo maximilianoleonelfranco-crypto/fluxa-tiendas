@@ -69,19 +69,19 @@ export default function PwaInstallerModal({ storeName }: { storeName?: string })
   return (
     <>
       {/* Banner promocional para descargar PWA */}
-      <div className="bg-gradient-to-r from-[var(--accent-cyan)]/20 via-blue-500/20 to-purple-500/20 border-2 border-[var(--accent-cyan)] rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-white shadow-2xl relative overflow-hidden animate-in fade-in">
-        <div className="absolute top-0 right-0 w-40 h-40 bg-[var(--accent-cyan)]/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-100 border border-emerald-200 rounded-2xl p-5 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-slate-900 shadow-xl relative overflow-hidden animate-in fade-in">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
         
         <div className="flex items-center gap-4 text-center sm:text-left relative z-10">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[var(--accent-cyan)] to-blue-600 flex items-center justify-center text-black font-black text-2xl shrink-0 shadow-lg shadow-cyan-500/30">
-            <Smartphone size={28} className="text-black" />
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white font-black text-2xl shrink-0 shadow-lg shadow-emerald-500/30">
+            <Smartphone size={28} className="text-white" />
           </div>
           <div>
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[var(--accent-cyan)]/20 text-[var(--accent-cyan)] text-[10px] font-black uppercase tracking-wider mb-1">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider mb-1">
               <Sparkles size={12} /> App Móvil Oficial • Android & Apple iOS
             </div>
-            <h3 className="text-lg font-extrabold text-white">Instala tu App de Administración en tu Celular</h3>
-            <p className="text-xs text-[var(--text-secondary)] mt-0.5 max-w-lg">
+            <h3 className="text-lg font-extrabold text-slate-900">Instala tu App de Administración en tu Celular</h3>
+            <p className="text-xs text-slate-600 mt-0.5 max-w-lg font-medium">
               Gestiona tu inventario, revisa turnos y recibe notificaciones de WhatsApp directo desde tu pantalla de inicio sin ocupar memoria.
             </p>
           </div>
@@ -89,7 +89,7 @@ export default function PwaInstallerModal({ storeName }: { storeName?: string })
 
         <button 
           onClick={() => setIsOpen(true)}
-          className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-gradient-to-r from-[var(--accent-cyan)] to-cyan-300 hover:brightness-110 text-black font-extrabold text-sm shadow-xl shadow-cyan-500/30 transition-all hover:scale-105 flex items-center justify-center gap-2 shrink-0 relative z-10"
+          className="w-full sm:w-auto px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-xl shadow-emerald-600/30 transition-all hover:scale-105 flex items-center justify-center gap-2 shrink-0 relative z-10"
         >
           <Download size={18} /> Instalar App Admin ↗
         </button>

@@ -84,17 +84,17 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative py-12">
-      <div className="max-w-4xl w-full glass-panel p-8 relative z-10">
+      <div className="max-w-4xl w-full glass-panel p-8 relative z-10 shadow-xl border border-slate-200 bg-white rounded-3xl">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 font-extrabold text-2xl text-gradient mb-2">
-            <Store size={28} className="text-[var(--accent-cyan)]" /> Fluxa Tiendas
+            <Store size={28} className="text-emerald-600" /> Fluxa Tiendas
           </Link>
-          <h2 className="text-3xl font-extrabold text-white">Crea tu Plataforma Web</h2>
-          <p className="text-base text-[var(--text-secondary)] mt-1">Elige tu plantilla ideal según el tipo de negocio y estarás en vivo en 2 minutos</p>
+          <h2 className="text-3xl font-extrabold text-slate-900">Crea tu Plataforma Web</h2>
+          <p className="text-base text-slate-500 mt-1">Elige tu plantilla ideal según el tipo de negocio y estarás en vivo en 2 minutos</p>
         </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-3 rounded-lg text-sm mb-6 text-center">
+          <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-sm mb-6 text-center font-medium">
             {error}
           </div>
         )}
@@ -103,47 +103,80 @@ export default function RegisterPage() {
           {/* PASO 1: SELECCIÓN DE PLANTILLA */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="text-[var(--accent-cyan)]" size={20} /> PASO 1: Selecciona el Tipo de Negocio
+              <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <Sparkles className="text-emerald-600" size={20} /> PASO 1: Selecciona el Tipo de Negocio
               </h3>
-              <span className="text-xs text-[var(--accent-cyan)] bg-[rgba(0,215,192,0.1)] px-3 py-1 rounded-full font-semibold">
+              <span className="text-xs text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full font-bold">
                 6 Plantillas Inteligentes
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {Object.values(STORE_TEMPLATES).map((tmpl) => {
                 const isSelected = selectedTemplate === tmpl.id;
+                
+                // Configuración de colores por rubro para dar distinción visual sin recargar
+                const accentStyles: Record<string, { bg: string, text: string, border: string, ring: string, badge: string }> = {
+                  ecommerce: { bg: 'bg-emerald-500/10', text: 'text-emerald-700', border: 'border-emerald-500', ring: 'ring-emerald-500/20', badge: 'bg-emerald-600 text-white' },
+                  gastronomy: { bg: 'bg-amber-500/10', text: 'text-amber-700', border: 'border-amber-500', ring: 'ring-amber-500/20', badge: 'bg-amber-600 text-white' },
+                  appointments: { bg: 'bg-pink-500/10', text: 'text-pink-700', border: 'border-pink-500', ring: 'ring-pink-500/20', badge: 'bg-pink-600 text-white' },
+                  booking: { bg: 'bg-teal-500/10', text: 'text-teal-700', border: 'border-teal-500', ring: 'ring-teal-500/20', badge: 'bg-teal-600 text-white' },
+                  services: { bg: 'bg-indigo-500/10', text: 'text-indigo-700', border: 'border-indigo-500', ring: 'ring-indigo-500/20', badge: 'bg-indigo-600 text-white' },
+                  repairs: { bg: 'bg-blue-500/10', text: 'text-blue-700', border: 'border-blue-500', ring: 'ring-blue-500/20', badge: 'bg-blue-600 text-white' },
+                };
+                
+                const theme = accentStyles[tmpl.id] || accentStyles.ecommerce;
+
                 return (
                   <button
                     key={tmpl.id}
                     type="button"
                     onClick={() => setSelectedTemplate(tmpl.id)}
-                    className={`p-5 rounded-2xl border text-left transition-all flex flex-col justify-between relative overflow-hidden ${
+                    className={`p-5 rounded-3xl border text-left transition-all duration-300 flex flex-col justify-between relative group ${
                       isSelected 
-                        ? 'border-[var(--accent-cyan)] bg-[rgba(0,215,192,0.12)] shadow-lg shadow-cyan-500/10 scale-[1.02]' 
-                        : 'border-[var(--border-glass)] bg-black/30 hover:bg-black/50 opacity-80 hover:opacity-100'
+                        ? `${theme.border} bg-gradient-to-b from-white to-slate-50/80 shadow-xl ring-4 ${theme.ring} scale-[1.02] z-10` 
+                        : 'border-slate-200/80 bg-white hover:border-slate-300 hover:shadow-lg hover:-translate-y-0.5'
                     }`}
                   >
-                    <div className="absolute top-0 right-0 w-24 h-24 rounded-full -mr-10 -mt-10 opacity-20 transition-transform group-hover:scale-150" style={{ backgroundColor: tmpl.themeColor }} />
-                    
                     <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-3xl">{tmpl.icon}</span>
-                        {isSelected && (
-                          <span className="bg-[var(--accent-cyan)] text-black text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            Seleccionada
+                      {/* Cabecera de la tarjeta: Icono colorizado y Badge de Selección */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-transform duration-300 group-hover:scale-110 shadow-sm border border-slate-100 ${theme.bg}`}>
+                          {tmpl.icon}
+                        </div>
+                        {isSelected ? (
+                          <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1 ${theme.badge}`}>
+                            <Check size={12} strokeWidth={3} /> Elegida
                           </span>
+                        ) : (
+                          <span className="w-5 h-5 rounded-full border-2 border-slate-200 group-hover:border-slate-400 transition-colors" />
                         )}
                       </div>
-                      <h4 className="font-bold text-white text-base leading-tight mb-1">{tmpl.name}</h4>
-                      <p className="text-[11px] text-cyan-300 font-semibold mb-2">{tmpl.category}</p>
-                      <p className="text-xs text-[var(--text-secondary)] line-clamp-3 leading-relaxed">{tmpl.description}</p>
+
+                      {/* Título y Rubro ordenados */}
+                      <h4 className="font-black text-slate-900 text-base leading-snug mb-1.5 group-hover:text-black transition-colors">
+                        {tmpl.name}
+                      </h4>
+                      <div className="mb-3">
+                        <span className={`inline-block text-[10px] font-extrabold px-2.5 py-0.5 rounded-md uppercase tracking-wider ${theme.bg} ${theme.text}`}>
+                          {tmpl.category}
+                        </span>
+                      </div>
+
+                      {/* Descripción breve y clara */}
+                      <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed font-medium mb-4">
+                        {tmpl.description}
+                      </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-[var(--border-glass)] flex items-center justify-between text-[11px] font-semibold text-gray-300">
-                      <span>Botón: <strong className="text-white">{tmpl.actionButtonText}</strong></span>
-                      <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: tmpl.themeColor }} />
+                    {/* Footer con preview real del botón de acción */}
+                    <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-400 font-semibold">Botón en tu web:</span>
+                      <span className={`px-3 py-1 rounded-xl font-bold text-[10px] shadow-sm flex items-center gap-1 transition-transform group-hover:scale-105 ${
+                        isSelected ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-700 group-hover:bg-slate-200'
+                      }`}>
+                        {tmpl.actionButtonText} ↗
+                      </span>
                     </div>
                   </button>
                 );
@@ -152,14 +185,14 @@ export default function RegisterPage() {
           </div>
 
           {/* PASO 2: DATOS DEL NEGOCIO */}
-          <div className="pt-6 border-t border-[var(--border-glass)]">
-            <h3 className="text-lg font-bold text-white mb-4">PASO 2: Datos de tu Negocio</h3>
+          <div className="pt-6 border-t border-slate-200">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">PASO 2: Datos de tu Negocio</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">Nombre de tu Negocio *</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Nombre de tu Negocio *</label>
                 <input 
                   type="text" 
-                  className="form-control" 
+                  className="form-control bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" 
                   placeholder="Ej. Panadería San José / Estética Glamour" 
                   value={storeName}
                   onChange={handleNameChange}
@@ -168,14 +201,14 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">Tu Enlace Personalizado</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Tu Enlace Personalizado</label>
                 <div className="flex items-center">
-                  <span className="bg-[rgba(71,85,105,0.3)] border border-r-0 border-[var(--border-glass)] px-3 py-3 rounded-l-lg text-sm text-cyan-400 font-mono">
+                  <span className="bg-slate-100 border border-r-0 border-slate-300 px-3 py-3 rounded-l-lg text-sm text-slate-600 font-mono font-bold">
                     tiendas.fluxa.com/t/
                   </span>
                   <input 
                     type="text" 
-                    className="form-control !rounded-l-none font-mono text-cyan-300" 
+                    className="form-control !rounded-l-none font-mono text-emerald-700 font-bold bg-slate-50 border-slate-300 focus:bg-white" 
                     placeholder="mi-negocio" 
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
@@ -187,26 +220,26 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               <div>
-                <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">WhatsApp para Pedidos/Turnos *</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">WhatsApp para Pedidos/Turnos *</label>
                 <div className="relative">
                   <input 
                     type="tel" 
-                    className="form-control pl-10" 
+                    className="form-control pl-10 bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" 
                     placeholder="59894968558" 
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
                     required 
                   />
-                  <Smartphone size={18} className="absolute left-3 top-3.5 text-green-400" />
+                  <Smartphone size={18} className="absolute left-3 top-3.5 text-emerald-600" />
                 </div>
-                <p className="text-xs text-[var(--text-secondary)] mt-1">Aquí te llegarán los pedidos y reservas de clientes.</p>
+                <p className="text-xs text-slate-500 mt-1">Aquí te llegarán los pedidos y reservas de clientes.</p>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">Correo Electrónico *</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Correo Electrónico *</label>
                 <input 
                   type="email" 
-                  className="form-control" 
+                  className="form-control bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" 
                   placeholder="dueño@negocio.com" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -215,10 +248,10 @@ export default function RegisterPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">Contraseña *</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1">Contraseña *</label>
                 <input 
                   type="password" 
-                  className="form-control" 
+                  className="form-control bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" 
                   placeholder="••••••••" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -232,14 +265,14 @@ export default function RegisterPage() {
           <button 
             type="submit" 
             disabled={loading}
-            className="btn-primary w-full justify-center py-4 text-lg font-extrabold shadow-xl shadow-cyan-500/20"
+            className="btn-primary w-full justify-center py-4 text-lg font-extrabold shadow-xl shadow-emerald-500/20"
           >
             {loading ? "Creando tu Web por Plantilla..." : `Siguiente: Activar ${STORE_TEMPLATES[selectedTemplate]?.name || 'Mi Web'}`} <ArrowRight size={20} />
           </button>
         </form>
 
-        <p className="text-center text-xs text-[var(--text-secondary)] mt-6">
-          ¿Ya tienes tu tienda o plataforma en Fluxa? <Link href="/login" className="text-cyan-400 hover:underline">Inicia Sesión aquí</Link>
+        <p className="text-center text-xs text-slate-500 mt-6 font-medium">
+          ¿Ya tienes tu tienda o plataforma en Fluxa? <Link href="/login" className="text-emerald-600 font-bold hover:underline">Inicia Sesión aquí</Link>
         </p>
       </div>
     </div>

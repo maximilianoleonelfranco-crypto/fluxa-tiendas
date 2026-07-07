@@ -70,27 +70,27 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 relative">
-      <div className="max-w-md w-full glass-panel p-8 relative z-10">
+      <div className="max-w-md w-full glass-panel p-8 relative z-10 shadow-xl border border-slate-200 bg-white rounded-3xl">
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2 font-extrabold text-2xl text-gradient mb-2">
-            <Store size={28} className="text-[var(--accent-cyan)]" /> Fluxa Tiendas
+            <Store size={28} className="text-emerald-600" /> Fluxa Tiendas
           </Link>
-          <h2 className="text-2xl font-bold text-white">Iniciar Sesión</h2>
-          <p className="text-sm text-[var(--text-secondary)] mt-1">Accede a tu panel de administración</p>
+          <h2 className="text-2xl font-bold text-slate-900">Iniciar Sesión</h2>
+          <p className="text-sm text-slate-500 mt-1">Accede a tu panel de administración</p>
         </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500/50 text-red-200 p-3 rounded-lg text-sm mb-6 text-center">
+          <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-sm mb-6 text-center font-medium">
             {error}
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">Correo Electrónico</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Correo Electrónico</label>
             <input 
               type="email" 
-              className="form-control" 
+              className="form-control bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" 
               placeholder="tu@negocio.com" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -99,10 +99,10 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[var(--text-secondary)] mb-1">Contraseña</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Contraseña</label>
             <input 
               type="password" 
-              className="form-control" 
+              className="form-control bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" 
               placeholder="••••••••" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -112,14 +112,14 @@ export default function LoginPage() {
 
           <button 
             type="submit" 
-            className="btn-primary w-full !mt-6 justify-center py-3 text-base shadow-lg"
+            className="btn-primary w-full !mt-6 justify-center py-3.5 text-base shadow-lg shadow-emerald-500/20 font-bold"
           >
             Entrar al Panel <ArrowRight size={18} />
           </button>
         </form>
 
-        <p className="text-center text-xs text-[var(--text-secondary)] mt-6">
-          ¿Aún no tienes tu tienda? <Link href="/register" className="text-cyan-400 hover:underline">Regístrate gratis</Link>
+        <p className="text-center text-xs text-slate-500 mt-6 font-medium">
+          ¿Aún no tienes tu tienda? <Link href="/register" className="text-emerald-600 font-bold hover:underline">Regístrate gratis</Link>
         </p>
       </div>
     </div>
