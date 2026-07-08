@@ -15,15 +15,60 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
+    const inputUser = email.trim();
+    const inputPass = password.trim();
+
+    // 0. CUENTA VIP ADMIN PARA PROBAR TODAS LAS TIENDAS CON PERMISOS TOTALES ACTIVOS
+    if (inputUser.toLowerCase() === 'admin' || inputUser.toLowerCase() === 'admin@fluxa.com') {
+      if (inputPass !== 'Admin' && inputPass.toLowerCase() !== 'admin') {
+        setError('Contraseña incorrecta para el usuario admin. Contraseña requerida: Admin');
+        return;
+      }
+
+      const allStoresRaw = localStorage.getItem('fluxa_all_stores');
+      let allStores: any[] = allStoresRaw ? JSON.parse(allStoresRaw) : [];
+
+      // Buscar o crear la tienda VIP Admin de prueba con suscripción activa PRO
+      let adminStore = allStores.find(s => s.email?.toLowerCase() === 'admin' || s.id === 'store-admin-vip');
+      if (!adminStore) {
+        adminStore = {
+          id: "store-admin-vip",
+          name: "Tienda VIP Admin (Tester)",
+          slug: "tienda-admin",
+          whatsapp_number: "59894968558",
+          email: "admin",
+          password: "Admin",
+          subscription_status: 'active',
+          plan_type: 'pro',
+          billing_cycle: 'annual',
+          template_id: 'modern',
+          theme_color: '#00D7C0',
+          font_family: 'modern',
+          is_admin_tester: true
+        };
+        allStores.push(adminStore);
+      } else {
+        adminStore.subscription_status = 'active';
+        adminStore.plan_type = 'pro';
+        adminStore.is_admin_tester = true;
+      }
+
+      localStorage.setItem('fluxa_all_stores', JSON.stringify(allStores));
+      localStorage.setItem('fluxa_current_store', JSON.stringify(adminStore));
+
+      router.push('/dashboard');
+      return;
+    }
+
     // 1. Buscar en el catálogo global de tiendas registradas
     const allStoresRaw = localStorage.getItem('fluxa_all_stores');
     const allStores: any[] = allStoresRaw ? JSON.parse(allStoresRaw) : [];
     
-    const foundStore = allStores.find(s => s.email?.toLowerCase() === email.toLowerCase());
+    const foundStore = allStores.find(s => s.email?.toLowerCase() === inputUser.toLowerCase());
 
     if (foundStore) {
       // Verificar contraseña (si fue guardada)
-      if (foundStore.password && foundStore.password !== password) {
+      if (foundStore.password && foundStore.password !== inputPass) {
         setError('Contraseña incorrecta para esta cuenta.');
         return;
       }
@@ -40,7 +85,7 @@ export default function LoginPage() {
     const saved = localStorage.getItem('fluxa_current_store');
     if (saved) {
       const store = JSON.parse(saved);
-      if (store.email?.toLowerCase() === email.toLowerCase() || email === 'demo@fluxa.com') {
+      if (store.email?.toLowerCase() === inputUser.toLowerCase() || inputUser === 'demo@fluxa.com') {
         if (store.subscription_status !== 'active') {
           router.push('/subscription');
           return;
@@ -51,13 +96,13 @@ export default function LoginPage() {
     }
 
     // 3. Si entra con cuenta demo o email de prueba
-    if (email === 'demo@fluxa.com' || email.includes('demo')) {
+    if (inputUser === 'demo@fluxa.com' || inputUser.includes('demo')) {
       const demoStore = {
         id: "store-demo-101",
         name: "Panadería San José",
         slug: "panaderia-sanjose",
         whatsapp_number: "59894968558",
-        email: email || "demo@fluxa.com",
+        email: inputUser || "demo@fluxa.com",
         subscription_status: 'active'
       };
       localStorage.setItem('fluxa_current_store', JSON.stringify(demoStore));
@@ -65,7 +110,7 @@ export default function LoginPage() {
       return;
     }
 
-    setError(`No se encontró ninguna tienda registrada con el correo "${email}". Verifica tu escritura o haz clic abajo en "Regístrate gratis".`);
+    setError(`No se encontró ninguna cuenta registrada con el usuario o correo "${inputUser}". Verifica tu escritura o haz clic abajo en "Regístrate gratis".`);
   };
 
   return (
@@ -87,11 +132,11 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Correo Electrónico</label>
+            <label className="block text-sm font-semibold text-slate-700 mb-1">Usuario o Correo Electrónico</label>
             <input 
-              type="email" 
+              type="text" 
               className="form-control bg-slate-50 border-slate-300 text-slate-900 focus:bg-white" 
-              placeholder="tu@negocio.com" 
+              placeholder="admin o tu@negocio.com" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required 

@@ -290,6 +290,43 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            {(storeData.email === 'admin' || storeData.is_admin_tester) && (
+              <select
+                onChange={(e) => {
+                  const allRaw = localStorage.getItem('fluxa_all_stores');
+                  if (allRaw) {
+                    const all = JSON.parse(allRaw);
+                    const chosen = all.find((s: any) => s.id === e.target.value);
+                    if (chosen) {
+                      chosen.subscription_status = 'active';
+                      chosen.is_admin_tester = true;
+                      localStorage.setItem('fluxa_current_store', JSON.stringify(chosen));
+                      window.location.reload();
+                    }
+                  }
+                }}
+                value={storeData.id}
+                className="px-3 py-2 rounded-xl bg-emerald-100 border border-emerald-500 text-emerald-900 text-xs font-black focus:outline-none cursor-pointer shadow-sm"
+                title="Probar cualquier tienda al instante con permisos VIP"
+              >
+                <option value={storeData.id}>👑 Viendo: {storeData.name}</option>
+                {(() => {
+                  try {
+                    const allRaw = localStorage.getItem('fluxa_all_stores');
+                    const all = allRaw ? JSON.parse(allRaw) : [];
+                    return all
+                      .filter((s: any) => s.id !== storeData.id)
+                      .map((s: any) => (
+                        <option key={s.id} value={s.id}>
+                          🏬 Probar: {s.name} ({s.slug})
+                        </option>
+                      ));
+                  } catch {
+                    return null;
+                  }
+                })()}
+              </select>
+            )}
             <Link 
               href="/admin" 
               className="px-3.5 py-2 rounded-xl bg-slate-900 text-amber-400 hover:bg-slate-800 font-extrabold text-xs shadow-sm flex items-center gap-1.5 border border-slate-700 transition-all"
