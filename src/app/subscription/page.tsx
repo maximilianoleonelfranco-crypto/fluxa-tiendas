@@ -39,7 +39,7 @@ function SubscriptionContent() {
   const [activating, setActivating] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'basic' | 'pro'>('basic');
   const [isAnnual, setIsAnnual] = useState(false);
-  const [gateway, setGateway] = useState<'stripe' | 'mercadopago' | 'paypal'>('stripe');
+  const [gateway, setGateway] = useState<'mercadopago'>('mercadopago');
   
   // Modal para configurar cuentas de cobro de Fluxa
   const [showConfigModal, setShowConfigModal] = useState(false);
@@ -89,65 +89,50 @@ function SubscriptionContent() {
   const handleSimulatePayment = () => {
     setActivating(true);
     const amount = getPrice();
-    const planTitle = selectedPlan === 'basic' ? 'Plan Básico Autogestión' : 'Plan PRO Llave en Mano';
-    const billingTitle = isAnnual ? 'Anual' : 'Mensual';
 
-    // Determinar la URL de redirección real hacia la pasarela
+    // Determinar la URL real de Mercado Pago configurada por el dueño
     let targetUrl = '';
-    
-    if (gateway === 'mercadopago') {
-      if (selectedPlan === 'basic' && !isAnnual && payConfig.mercadopagoLinkBasicMonthly && !payConfig.mercadopagoLinkBasicMonthly.includes('test')) {
-        targetUrl = payConfig.mercadopagoLinkBasicMonthly;
-      } else if (selectedPlan === 'basic' && isAnnual && payConfig.mercadopagoLinkBasicAnnual && !payConfig.mercadopagoLinkBasicAnnual.includes('test')) {
-        targetUrl = payConfig.mercadopagoLinkBasicAnnual;
-      } else if (selectedPlan === 'pro' && !isAnnual && payConfig.mercadopagoLinkProMonthly && !payConfig.mercadopagoLinkProMonthly.includes('test')) {
-        targetUrl = payConfig.mercadopagoLinkProMonthly;
-      } else if (selectedPlan === 'pro' && isAnnual && payConfig.mercadopagoLinkProAnnual && !payConfig.mercadopagoLinkProAnnual.includes('test')) {
-        targetUrl = payConfig.mercadopagoLinkProAnnual;
-      } else {
-        // Enlace de pago formal dinámico de Mercado Pago Latam / Uruguay
-        targetUrl = `https://www.mercadopago.com.uy/checkout/v1/redirect?pref_id=fluxa-${selectedPlan}-${isAnnual ? 'annual' : 'monthly'}&amount=${amount}&title=${encodeURIComponent(`Fluxa Tiendas - ${planTitle}`)}`;
-      }
-    } else if (gateway === 'stripe') {
-      if (selectedPlan === 'basic' && !isAnnual && payConfig.stripeLinkBasicMonthly && !payConfig.stripeLinkBasicMonthly.includes('test')) {
-        targetUrl = payConfig.stripeLinkBasicMonthly;
-      } else if (selectedPlan === 'basic' && isAnnual && payConfig.stripeLinkBasicAnnual && !payConfig.stripeLinkBasicAnnual.includes('test')) {
-        targetUrl = payConfig.stripeLinkBasicAnnual;
-      } else if (selectedPlan === 'pro' && !isAnnual && payConfig.stripeLinkProMonthly && !payConfig.stripeLinkProMonthly.includes('test')) {
-        targetUrl = payConfig.stripeLinkProMonthly;
-      } else if (selectedPlan === 'pro' && isAnnual && payConfig.stripeLinkProAnnual && !payConfig.stripeLinkProAnnual.includes('test')) {
-        targetUrl = payConfig.stripeLinkProAnnual;
-      } else {
-        // Enlace de pago formal dinámico de Stripe Checkout Global
-        targetUrl = `https://checkout.stripe.com/c/pay/cs_live_fluxa_${selectedPlan}_${amount}usd`;
-      }
-    } else if (gateway === 'paypal') {
-      // Redirección formal al checkout corporativo de PayPal con el correo de cobro de Fluxa
-      targetUrl = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=${encodeURIComponent(payConfig.paypalEmail)}&item_name=${encodeURIComponent(`Fluxa Tiendas - ${planTitle} (${billingTitle})`)}&amount=${amount}&currency_code=USD`;
+    if (selectedPlan === 'basic' && !isAnnual && payConfig.mercadopagoLinkBasicMonthly && !payConfig.mercadopagoLinkBasicMonthly.includes('test')) {
+      targetUrl = payConfig.mercadopagoLinkBasicMonthly;
+    } else if (selectedPlan === 'basic' && isAnnual && payConfig.mercadopagoLinkBasicAnnual && !payConfig.mercadopagoLinkBasicAnnual.includes('test')) {
+      targetUrl = payConfig.mercadopagoLinkBasicAnnual;
+    } else if (selectedPlan === 'pro' && !isAnnual && payConfig.mercadopagoLinkProMonthly && !payConfig.mercadopagoLinkProMonthly.includes('test')) {
+      targetUrl = payConfig.mercadopagoLinkProMonthly;
+    } else if (selectedPlan === 'pro' && isAnnual && payConfig.mercadopagoLinkProAnnual && !payConfig.mercadopagoLinkProAnnual.includes('test')) {
+      targetUrl = payConfig.mercadopagoLinkProAnnual;
+    } else {
+      // Enlace de cobro oficial por defecto
+      targetUrl = payConfig.mercadopagoLinkBasicMonthly || "https://link.mercadopago.com.uy/fluxatiendas";
     }
 
     setRedirectingUrl(targetUrl);
 
-    // Simulamos la verificación bancaria segura cifrada antes de activar la cuenta
     setTimeout(() => {
+      // ⚠️ IMPORTANTE: Mantener en estado 'pending'. NUNCA activar automáticamente ni dar acceso al panel sin pagar.
       const updated = { 
         ...storeData, 
-        subscription_status: 'active',
+        subscription_status: 'pending',
         plan_type: selectedPlan,
         billing_cycle: isAnnual ? 'annual' : 'monthly',
-        gateway_used: gateway,
-        paid_amount: amount,
-        paid_at: new Date().toISOString()
+        gateway_used: 'mercadopago',
+        pending_amount: amount,
+        last_checkout_attempt: new Date().toISOString()
       };
       localStorage.setItem('fluxa_current_store', JSON.stringify(updated));
       
-      // Si el enlace es real y externo (ej. MercadoPago / PayPal / Stripe configurado), redirigimos o abrimos ventana
-      if (targetUrl.startsWith('http') && !targetUrl.includes('test') && !targetUrl.includes('cs_live_fluxa')) {
-        window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      // Sincronizar en el catálogo global para que el dueño lo vea y apruebe en /admin en cuanto reciba el pago
+      const allStoresRaw = localStorage.getItem('fluxa_all_stores');
+      if (allStoresRaw) {
+        try {
+          let allStores = JSON.parse(allStoresRaw);
+          allStores = allStores.map((s: any) => s.id === updated.id ? { ...s, ...updated } : s);
+          localStorage.setItem('fluxa_all_stores', JSON.stringify(allStores));
+        } catch (e) {}
       }
       
-      router.push('/dashboard?payment_success=true');
-    }, 2500);
+      // REDIRECCIÓN DIRECTA EN LA MISMA PESTAÑA HACIA LA PASARELA DE COBRO DE MERCADO PAGO
+      window.location.href = targetUrl;
+    }, 1200);
   };
 
   if (!storeData) return null;
@@ -167,6 +152,44 @@ function SubscriptionContent() {
             <Settings size={14} /> Configurar Mis Cobros
           </button>
         </div>
+
+        {storeData.subscription_status === 'pending' && storeData.last_checkout_attempt && (
+          <div className="mb-8 p-6 rounded-3xl bg-amber-50 border-2 border-amber-400 text-left shadow-lg animate-fade-in">
+            <div className="flex items-center gap-3 mb-2">
+              <span className="w-3 h-3 rounded-full bg-amber-500 animate-ping" />
+              <h3 className="font-black text-amber-900 text-base">⚠️ Pago Pendiente de Confirmación en Mercado Pago</h3>
+            </div>
+            <p className="text-xs text-amber-800 mb-4 leading-relaxed font-medium">
+              Tu intento de pago por el <strong>Plan {storeData.plan_type === 'pro' ? 'PRO' : 'Básico'} (${storeData.pending_amount || (storeData.plan_type === 'pro' ? 100 : 10)} USD)</strong> está registrado. En cuanto completes el pago en Mercado Pago y el dueño lo verifique, tu panel se activará.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href={`https://wa.me/59894968558?text=${encodeURIComponent(`Hola! Ya pagué la cuota de mi tienda "${storeData.name}" (${storeData.slug}) por Mercado Pago. ¿Me activas el acceso al panel?`)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow"
+              >
+                📲 Enviar Comprobante por WhatsApp al Dueño
+              </a>
+              <button
+                onClick={() => {
+                  const saved = localStorage.getItem('fluxa_current_store');
+                  if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.subscription_status === 'active') {
+                      router.push('/dashboard');
+                    } else {
+                      alert("Tu tienda aún sigue en estado pendiente. Si ya pagaste, por favor notifica al dueño por WhatsApp para que apruebe tu acceso en el panel de administración.");
+                    }
+                  }
+                }}
+                className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2"
+              >
+                🔄 Ya me aprobaron, Entrar al Panel
+              </button>
+            </div>
+          </div>
+        )}
 
         <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Activa tu Tienda Oficial, {storeData.name}</h2>
         <p className="text-slate-600 text-base mb-6 font-medium">
@@ -284,76 +307,25 @@ function SubscriptionContent() {
           </div>
 
           <p className="text-xs text-slate-600 font-medium mb-4">
-            Selecciona el procesador de cobro formal para tu suscripción:
+            Procesador de cobro oficial seleccionado para tu suscripción:
           </p>
 
           <div className="space-y-3 mb-6">
-            {/* MERCADO PAGO / dLocal (URUGUAY / LATAM) */}
-            <div 
-              onClick={() => setGateway('mercadopago')}
-              className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-                gateway === 'mercadopago' ? 'bg-cyan-50/80 border-cyan-500 shadow-md scale-[1.01]' : 'bg-slate-50 border-slate-200 hover:bg-white'
-              }`}
-            >
+            {/* MERCADO PAGO (URUGUAY / LATAM) */}
+            <div className="p-4 rounded-2xl border bg-cyan-50/80 border-cyan-500 shadow-md flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-600 flex items-center justify-center font-bold">
                   <Globe size={20} />
                 </div>
                 <div>
                   <h5 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                    Mercado Pago / dLocal <span className="bg-cyan-100 text-cyan-800 font-bold text-[9px] px-2 py-0.5 rounded-full font-mono">Uruguay & Latam</span>
+                    Mercado Pago Oficial <span className="bg-cyan-100 text-cyan-800 font-bold text-[9px] px-2 py-0.5 rounded-full font-mono">Uruguay & Latam</span>
                   </h5>
                   <p className="text-[11px] text-slate-600 font-medium">Tarjetas locales Uruguay (OCA, Visa, Master, Lider), RedPagos, Abitab o saldo Mercado Pago.</p>
                 </div>
               </div>
-              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${gateway === 'mercadopago' ? 'border-cyan-600 bg-cyan-600' : 'border-slate-300 bg-white'}`}>
-                {gateway === 'mercadopago' && <span className="w-2 h-2 rounded-full bg-white" />}
-              </div>
-            </div>
-
-            {/* STRIPE GLOBAL */}
-            <div 
-              onClick={() => setGateway('stripe')}
-              className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-                gateway === 'stripe' ? 'bg-indigo-50/80 border-indigo-500 shadow-md scale-[1.01]' : 'bg-slate-50 border-slate-200 hover:bg-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center font-bold">
-                  <CreditCard size={20} />
-                </div>
-                <div>
-                  <h5 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                    Stripe Global Checkout <span className="bg-indigo-100 text-indigo-800 font-bold text-[9px] px-2 py-0.5 rounded-full font-mono">USD / Internacional</span>
-                  </h5>
-                  <p className="text-[11px] text-slate-600 font-medium">Tarjetas de Crédito/Débito Internacionales (Visa, Mastercard, Amex, Apple Pay, Google Pay).</p>
-                </div>
-              </div>
-              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${gateway === 'stripe' ? 'border-indigo-600 bg-indigo-600' : 'border-slate-300 bg-white'}`}>
-                {gateway === 'stripe' && <span className="w-2 h-2 rounded-full bg-white" />}
-              </div>
-            </div>
-
-            {/* PAYPAL CORPORATE */}
-            <div 
-              onClick={() => setGateway('paypal')}
-              className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
-                gateway === 'paypal' ? 'bg-blue-50/80 border-blue-500 shadow-md scale-[1.01]' : 'bg-slate-50 border-slate-200 hover:bg-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center font-black text-lg">
-                  P
-                </div>
-                <div>
-                  <h5 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                    PayPal Corporate <span className="bg-blue-100 text-blue-800 font-bold text-[9px] px-2 py-0.5 rounded-full font-mono">Mundo Entero</span>
-                  </h5>
-                  <p className="text-[11px] text-slate-600 font-medium">Procesamiento instantáneo en USD con cuenta PayPal internacional o tarjetas vinculadas.</p>
-                </div>
-              </div>
-              <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${gateway === 'paypal' ? 'border-blue-600 bg-blue-600' : 'border-slate-300 bg-white'}`}>
-                {gateway === 'paypal' && <span className="w-2 h-2 rounded-full bg-white" />}
+              <div className="w-5 h-5 rounded-full border border-cyan-600 bg-cyan-600 flex items-center justify-center">
+                <span className="w-2 h-2 rounded-full bg-white" />
               </div>
             </div>
           </div>
@@ -361,15 +333,11 @@ function SubscriptionContent() {
           <button 
             onClick={handleSimulatePayment}
             disabled={activating}
-            className={`w-full justify-center py-4 text-sm font-extrabold rounded-2xl shadow-xl transition-all flex items-center gap-2 ${
-              gateway === 'mercadopago' ? 'bg-cyan-600 hover:bg-cyan-700 text-white shadow-cyan-500/20' :
-              gateway === 'stripe' ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20' :
-              'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20'
-            }`}
+            className="w-full justify-center py-4 text-sm font-extrabold rounded-2xl shadow-xl transition-all flex items-center gap-2 bg-cyan-600 hover:bg-cyan-700 text-white shadow-cyan-500/20"
           >
             {activating 
-              ? <span className="flex items-center gap-2"><RefreshCw className="animate-spin" size={16} /> Conectando con servidor de pago seguro de {gateway === 'mercadopago' ? 'Mercado Pago Uruguay' : gateway === 'stripe' ? 'Stripe Global' : 'PayPal'}...</span>
-              : `Proceder al Pago Seguro con ${gateway === 'mercadopago' ? 'Mercado Pago (UY / Latam)' : gateway === 'stripe' ? 'Stripe Global' : 'PayPal'} ($${selectedPlan === 'basic' ? (isAnnual ? '100 USD' : '10 USD') : (isAnnual ? '200 USD' : '100 USD')})`
+              ? <span className="flex items-center gap-2"><RefreshCw className="animate-spin" size={16} /> Redirigiendo a la pasarela de cobro de Mercado Pago Uruguay...</span>
+              : `Proceder al Pago Seguro con Mercado Pago ($${selectedPlan === 'basic' ? (isAnnual ? '100 USD' : '10 USD') : (isAnnual ? '200 USD' : '100 USD')})`
             } <ExternalLink size={16} />
           </button>
         </div>
