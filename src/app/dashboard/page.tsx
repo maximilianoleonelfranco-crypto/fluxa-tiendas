@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { 
   Store, Plus, Trash2, ExternalLink, Settings, 
   ShoppingBag, CheckCircle2, LogOut, Smartphone, DollarSign, Image as ImageIcon,
-  Sparkles, ArrowRight, Check, HelpCircle, Gift, Award, Calendar, Clock, User, Phone, MapPin, MessageSquare, Filter, CreditCard, CheckCircle
+  Sparkles, ArrowRight, Check, HelpCircle, Gift, Award, Calendar, Clock, User, Phone, MapPin, MessageSquare, Filter, CreditCard, CheckCircle,
+  Copy, Share2, Eye, TrendingUp, Layers, Palette, Zap
 } from 'lucide-react';
 import { Product, OrderMovement } from '@/lib/supabase';
 import { STORE_TEMPLATES, DEFAULT_TEMPLATE, STORE_PALETTES, getStorePalette } from '@/lib/templates';
@@ -274,22 +275,31 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-slate-900">
-      {/* Top Navbar */}
-      <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-50 px-6 py-4 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-500/15">
-              <Store size={22} />
+      {/* ========================================================= */}
+      {/* TOP NAVBAR OBSIDIANA PREMIUM                              */}
+      {/* ========================================================= */}
+      <header className="border-b border-slate-800 bg-slate-950 text-white sticky top-0 z-50 px-6 py-4 shadow-2xl">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-emerald-500/20 shrink-0">
+              <Store size={26} />
             </div>
             <div>
-              <h1 className="font-extrabold text-lg text-slate-900 leading-tight">{storeData.name}</h1>
-              <span className="text-xs text-emerald-700 flex items-center gap-1 font-bold">
-                <CheckCircle2 size={12} /> {storeData.plan_type === 'pro' ? 'Plan PRO Llave en Mano' : 'Plan Básico Autogestión'} • {currentTmpl.name}
-              </span>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="font-black text-xl text-white tracking-tight">{storeData.name}</h1>
+                <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-[10px] px-2.5 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" /> ONLINE • SSL
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-slate-400 font-medium mt-1">
+                <span className="text-emerald-400 font-semibold">{storeData.plan_type === 'pro' ? 'Plan PRO Llave en Mano' : 'Plan Básico Autogestión'}</span>
+                <span>•</span>
+                <span>Plantilla activa: <strong className="text-white">{currentTmpl.name}</strong></span>
+              </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             {(storeData.email === 'admin' || storeData.is_admin_tester) && (
               <select
                 onChange={(e) => {
@@ -306,7 +316,7 @@ export default function DashboardPage() {
                   }
                 }}
                 value={storeData.id}
-                className="px-3 py-2 rounded-xl bg-emerald-100 border border-emerald-500 text-emerald-900 text-xs font-black focus:outline-none cursor-pointer shadow-sm"
+                className="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-emerald-500/60 text-emerald-300 text-xs font-extrabold focus:outline-none cursor-pointer shadow-sm hover:border-emerald-400 transition-all"
                 title="Probar cualquier tienda al instante con permisos VIP"
               >
                 <option value={storeData.id}>👑 Viendo: {storeData.name}</option>
@@ -327,175 +337,262 @@ export default function DashboardPage() {
                 })()}
               </select>
             )}
+
             <Link 
               href="/admin" 
-              className="px-3.5 py-2 rounded-xl bg-slate-900 text-amber-400 hover:bg-slate-800 font-extrabold text-xs shadow-sm flex items-center gap-1.5 border border-slate-700 transition-all"
+              className="px-4 py-2.5 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-extrabold text-xs shadow-sm flex items-center gap-1.5 border border-amber-500/30 transition-all"
               title="Panel Superadmin para el dueño de la plataforma (Control de todas las tiendas y cobros)"
             >
               👑 Panel Dueño
             </Link>
+
             <Link 
               href={`/t/${storeData.slug}`} 
               target="_blank"
-              className="btn-secondary text-xs !py-2 !px-4 border-emerald-500/40 text-emerald-700 hover:bg-emerald-50 font-bold shadow-sm"
+              className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/20 flex items-center gap-1.5 transition-all"
             >
               Ver mi Web en Vivo <ExternalLink size={14} />
             </Link>
-            <button onClick={handleLogout} className="text-slate-500 hover:text-red-600 p-2 transition-colors" title="Cerrar Sesión">
-              <LogOut size={20} />
+
+            <button 
+              onClick={handleLogout} 
+              className="px-3 py-2.5 rounded-xl bg-slate-900 hover:bg-red-950/60 text-slate-400 hover:text-red-400 border border-slate-800 transition-colors flex items-center gap-1.5 text-xs font-bold" 
+              title="Cerrar Sesión"
+            >
+              <LogOut size={16} />
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Body */}
+      {/* ========================================================= */}
+      {/* CUERPO PRINCIPAL                                          */}
+      {/* ========================================================= */}
       <main className="max-w-7xl mx-auto px-6 py-8 flex-1 w-full">
         {/* BANNER DE DESCARGA DE APP MÓVIL PWA */}
         <PwaInstallerModal storeName={storeData.name} />
 
-        {/* GUÍA INTERACTIVA DE BIENVENIDA / TUTORIAL */}
-        {showTutorial && (
-          <div className="bg-white p-6 mb-8 rounded-3xl border border-slate-200 shadow-md relative overflow-hidden">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
-              <div>
-                <span className="text-xs font-mono bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-extrabold uppercase tracking-wider mb-2 inline-block">
-                  🚀 Tutorial de Bienvenida
-                </span>
-                <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-                  Configura tu Web Inteligente ({currentTmpl.name}) en 4 Pasos
-                </h2>
-                <p className="text-xs text-slate-500 mt-1 font-medium">
-                  Sigue esta guía interactiva para publicar tu negocio y empezar a recibir pedidos por WhatsApp.
-                </p>
-              </div>
+        {/* ========================================================= */}
+        {/* HERO COMMAND CENTER (CENTRO DE CONTROL VIP)               */}
+        {/* ========================================================= */}
+        <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 rounded-3xl shadow-2xl p-7 mb-8 text-white relative overflow-hidden">
+          {/* Luz de acento decorativa */}
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+            {/* Columna Izquierda: Información de enlace y estado */}
+            <div className="lg:col-span-7">
+              <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-3">
+                <Sparkles size={13} /> Tu E-Commerce está 100% activo en internet
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-2">
+                Centro de Control Comercial
+              </h2>
+              <p className="text-slate-400 text-xs sm:text-sm mb-6 leading-relaxed">
+                Administra tu catálogo de productos, recibe pedidos por WhatsApp al instante y controla tus utilidades reales en un solo lugar.
+              </p>
 
-              <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-200 shrink-0">
-                <div className="text-right">
-                  <span className="text-xs text-slate-500 block font-semibold">Tu Progreso:</span>
-                  <span className="text-lg font-black text-emerald-700">{progressCount} de 4 pasos ({progressPercent}%)</span>
+              {/* Caja de Enlace Oficial para Compartir */}
+              <div className="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                    <ExternalLink size={18} />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">ENLACE OFICIAL PARA CLIENTES</span>
+                    <span className="text-sm font-mono text-emerald-400 font-extrabold truncate block">tiendas.fluxauy.com/t/{storeData.slug}</span>
+                  </div>
                 </div>
-                <div className="w-12 h-12 rounded-full border-4 border-emerald-500/30 flex items-center justify-center font-bold text-slate-900 text-xs bg-emerald-500/10">
-                  {progressPercent}%
-                </div>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-              {/* PASO 1 */}
-              <div className="bg-slate-50 p-4 rounded-2xl border border-emerald-500/40 relative">
-                <div className="flex items-center gap-2 text-emerald-600 font-bold text-xs mb-1">
-                  <CheckCircle2 size={16} /> PASO 1 • COMPLETADO
-                </div>
-                <h4 className="font-extrabold text-slate-900 text-sm mb-1">Elegir rubro y plantilla</h4>
-                <p className="text-xs text-slate-600 font-medium">Has seleccionado la plantilla <strong className="text-emerald-700">{currentTmpl.name}</strong>.</p>
-              </div>
-
-              {/* PASO 2 */}
-              <div className={`p-4 rounded-2xl border transition-all ${hasProducts ? 'bg-slate-50 border-emerald-500/40' : 'bg-emerald-50/60 border-emerald-500 shadow-md'}`}>
-                <div className={`flex items-center gap-2 font-bold text-xs mb-1 ${hasProducts ? 'text-emerald-600' : 'text-emerald-700 animate-pulse'}`}>
-                  {hasProducts ? <CheckCircle2 size={16} /> : <Sparkles size={16} />} PASO 2 • {hasProducts ? 'COMPLETADO' : 'ACCIÓN REQUERIDA'}
-                </div>
-                <h4 className="font-extrabold text-slate-900 text-sm mb-1">Cargar tu primer {currentTmpl.itemLabel}</h4>
-                <p className="text-xs text-slate-600 mb-3 font-medium">Tu catálogo está vacío para que agregues tus opciones reales.</p>
-                {!hasProducts && (
+                <div className="flex items-center gap-2 shrink-0">
                   <button 
                     onClick={() => {
-                      setActiveTab('products');
-                      setIsAdding(true);
-                      window.scrollTo({ top: 400, behavior: 'smooth' });
+                      navigator.clipboard.writeText(`https://tiendas.fluxauy.com/t/${storeData.slug}`);
+                      alert('¡Enlace copiado al portapapeles! pégalo en tu biografía de Instagram o WhatsApp.');
                     }}
-                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-extrabold transition-transform hover:scale-105 flex items-center justify-center gap-1 shadow-sm"
+                    className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-xs rounded-xl flex items-center gap-1.5 transition-all"
                   >
-                    ➕ Cargar {currentTmpl.itemLabel} <ArrowRight size={12} />
+                    <Copy size={14} /> Copiar
                   </button>
-                )}
-              </div>
-
-              {/* PASO 3 */}
-              <div className={`p-4 rounded-2xl border transition-all ${hasLogoOrBanner ? 'bg-slate-50 border-emerald-500/40' : 'bg-slate-50 border-slate-200'}`}>
-                <div className={`flex items-center gap-2 font-bold text-xs mb-1 ${hasLogoOrBanner ? 'text-emerald-600' : 'text-amber-600'}`}>
-                  {hasLogoOrBanner ? <CheckCircle2 size={16} /> : <Settings size={16} />} PASO 3 • {hasLogoOrBanner ? 'COMPLETADO' : 'OPCIONAL'}
+                  <a 
+                    href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`¡Visita nuestra tienda oficial en línea y realiza tu pedido fácilmente! 👉 https://tiendas.fluxauy.com/t/${storeData.slug}`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/15"
+                  >
+                    <Share2 size={14} /> Compartir
+                  </a>
                 </div>
-                <h4 className="font-extrabold text-slate-900 text-sm mb-1">Logo, Color y Paleta</h4>
-                <p className="text-xs text-slate-600 mb-3 font-medium">Asegúrate de que el color y nombre coincidan con tu marca.</p>
-                <button 
-                  onClick={() => {
-                    setActiveTab('settings');
-                    window.scrollTo({ top: 300, behavior: 'smooth' });
-                  }}
-                  className="w-full py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1"
-                >
-                  🎨 Ir a Ajustes <ArrowRight size={12} />
-                </button>
-              </div>
-
-              {/* PASO 4 */}
-              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-2 text-purple-600 font-bold text-xs mb-1">
-                    <ExternalLink size={16} /> PASO 4 • EN VIVO
-                  </div>
-                  <h4 className="font-extrabold text-slate-900 text-sm mb-1">Ver y compartir tu enlace</h4>
-                  <p className="text-xs text-slate-600 font-medium">Tu web tiene una apariencia 100% personalizada por fuera.</p>
-                </div>
-                <Link 
-                  href={`/t/${storeData.slug}`} 
-                  target="_blank"
-                  className="mt-3 w-full py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white rounded-xl text-xs font-black text-center block shadow"
-                >
-                  🌐 Abrir Mi Web ↗
-                </Link>
               </div>
             </div>
 
-            <div className="flex justify-end">
+            {/* Columna Derecha: Acciones Rápidas Intuitivas */}
+            <div className="lg:col-span-5 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  setActiveTab('products');
+                  setIsAdding(true);
+                  window.scrollTo({ top: 600, behavior: 'smooth' });
+                }}
+                className="p-4 rounded-2xl bg-slate-800/80 hover:bg-emerald-500/15 border border-slate-700/80 hover:border-emerald-500/50 text-left transition-all group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition-transform">
+                  <Plus size={18} />
+                </div>
+                <h4 className="font-extrabold text-white text-xs mb-0.5">Cargar {currentTmpl.itemLabel}</h4>
+                <p className="text-[11px] text-slate-400">Publicar en tu web</p>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveTab('orders');
+                  window.scrollTo({ top: 600, behavior: 'smooth' });
+                }}
+                className="p-4 rounded-2xl bg-slate-800/80 hover:bg-indigo-500/15 border border-slate-700/80 hover:border-indigo-500/50 text-left transition-all group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition-transform">
+                  <ShoppingBag size={18} />
+                </div>
+                <h4 className="font-extrabold text-white text-xs mb-0.5">Pedidos & Ventas</h4>
+                <p className="text-[11px] text-slate-400">Ver flujo de pedidos</p>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveTab('settings');
+                  window.scrollTo({ top: 600, behavior: 'smooth' });
+                }}
+                className="p-4 rounded-2xl bg-slate-800/80 hover:bg-amber-500/15 border border-slate-700/80 hover:border-amber-500/50 text-left transition-all group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition-transform">
+                  <Palette size={18} />
+                </div>
+                <h4 className="font-extrabold text-white text-xs mb-0.5">Diseño y Plantillas</h4>
+                <p className="text-[11px] text-slate-400">Personalizar colores</p>
+              </button>
+
+              <button
+                onClick={handleQuickSale}
+                className="p-4 rounded-2xl bg-slate-800/80 hover:bg-teal-500/15 border border-slate-700/80 hover:border-teal-500/50 text-left transition-all group"
+              >
+                <div className="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold mb-3 group-hover:scale-110 transition-transform">
+                  <DollarSign size={18} />
+                </div>
+                <h4 className="font-extrabold text-white text-xs mb-0.5">Venta Rápida</h4>
+                <p className="text-[11px] text-slate-400">Sumar ingreso al día</p>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================= */}
+        {/* CHECKLIST DE LANZAMIENTO (BARRA HORIZONTAL COMPACTA)      */}
+        {/* ========================================================= */}
+        {showTutorial && (
+          <div className="bg-white p-6 mb-8 rounded-3xl border border-slate-200/80 shadow-md">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5 pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <span className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-black text-sm">
+                  🚀
+                </span>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900">Checklist Rápido de Lanzamiento ({progressPercent}% Completado)</h3>
+                  <p className="text-xs text-slate-500">Sigue estos 4 pasos para configurar tu tienda al 100%</p>
+                </div>
+              </div>
               <button 
                 onClick={() => setShowTutorial(false)}
-                className="text-[11px] text-slate-400 hover:text-slate-600 underline font-semibold"
+                className="text-xs text-slate-400 hover:text-slate-700 font-bold underline"
               >
-                Ocultar este tutorial de bienvenida
+                Ocultar esta guía
               </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Paso 1 */}
+              <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-300 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shrink-0">✓</div>
+                <div>
+                  <h5 className="text-xs font-black text-slate-900">1. Rubro y Plantilla</h5>
+                  <p className="text-[11px] text-emerald-800 font-semibold">{currentTmpl.name}</p>
+                </div>
+              </div>
+
+              {/* Paso 2 */}
+              <div 
+                onClick={() => {
+                  setActiveTab('products');
+                  setIsAdding(true);
+                  window.scrollTo({ top: 600, behavior: 'smooth' });
+                }}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center gap-3 ${hasProducts ? 'bg-emerald-50/70 border-emerald-300' : 'bg-amber-50 border-amber-300 hover:border-amber-400 shadow-sm'}`}
+              >
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${hasProducts ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white animate-pulse'}`}>
+                  {hasProducts ? '✓' : '2'}
+                </div>
+                <div>
+                  <h5 className="text-xs font-black text-slate-900">2. Cargar {currentTmpl.itemLabel}</h5>
+                  <p className="text-[11px] font-semibold text-slate-600">{hasProducts ? `${products.length} cargados` : 'Clic para agregar →'}</p>
+                </div>
+              </div>
+
+              {/* Paso 3 */}
+              <div 
+                onClick={() => {
+                  setActiveTab('settings');
+                  window.scrollTo({ top: 600, behavior: 'smooth' });
+                }}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center gap-3 ${hasLogoOrBanner ? 'bg-emerald-50/70 border-emerald-300' : 'bg-slate-50 border-slate-200 hover:bg-white'}`}
+              >
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shrink-0 ${hasLogoOrBanner ? 'bg-emerald-600 text-white' : 'bg-slate-300 text-slate-700'}`}>
+                  {hasLogoOrBanner ? '✓' : '3'}
+                </div>
+                <div>
+                  <h5 className="text-xs font-black text-slate-900">3. Logo y Colores</h5>
+                  <p className="text-[11px] font-semibold text-slate-600">Personalizar diseño</p>
+                </div>
+              </div>
+
+              {/* Paso 4 */}
+              <Link 
+                href={`/t/${storeData.slug}`} 
+                target="_blank"
+                className="p-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white transition-all flex items-center justify-between"
+              >
+                <div>
+                  <h5 className="text-xs font-black text-white">4. Ver tu Web en Vivo</h5>
+                  <p className="text-[11px] text-emerald-400 font-semibold">Abrir tienda ↗</p>
+                </div>
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <ExternalLink size={16} />
+                </div>
+              </Link>
             </div>
           </div>
         )}
 
-        {/* Banner de Enlace Público */}
-        <div className="bg-white p-6 mb-8 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 border-l-4 border-l-emerald-500">
-          <div>
-            <h3 className="font-extrabold text-slate-900 text-base">🔗 Enlace oficial para tus clientes ({currentTmpl.badgeText}):</h3>
-            <p className="text-sm font-mono text-emerald-700 font-bold mt-1 bg-emerald-50 px-3 py-1 rounded-lg inline-block">tiendas.fluxauy.com/t/{storeData.slug}</p>
-          </div>
-          <button 
-            onClick={() => {
-              navigator.clipboard.writeText(`https://tiendas.fluxauy.com/t/${storeData.slug}`);
-              alert('¡Enlace copiado al portapapeles! Listo para pegar en tu Instagram o WhatsApp.');
-            }}
-            className="btn-secondary text-xs !py-2.5 !px-5 font-bold shadow-sm"
-          >
-            Copiar Enlace
-          </button>
-        </div>
-
-        {/* ============================================================== */}
-        {/* BANNER FINANCIERO AL ESTILO TREINTA / MINIMALISMO NÓRDICO     */}
-        {/* ============================================================== */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-md mb-8">
+        {/* ========================================================= */}
+        {/* DASHBOARD FINANCIERO INTELIGENTE (TREINTA / METRICS PRO)   */}
+        {/* ========================================================= */}
+        <div className="bg-white p-7 rounded-3xl border border-slate-200/80 shadow-md mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
             <div>
               <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                <DollarSign className="text-emerald-600 bg-emerald-100 p-1 rounded-lg" size={26} />
-                Resumen Financiero y Libro Diario (Estilo Treinta)
+                <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <TrendingUp size={20} />
+                </div>
+                Resumen Financiero y Métricas del Negocio
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5 font-medium">Controla tus utilidades, ventas en efectivo o QR, y gastos operativos en tiempo real.</p>
+              <p className="text-xs text-slate-500 mt-0.5 font-medium">Controla tus utilidades, ventas en efectivo o QR y saldo en tiempo real.</p>
             </div>
             
-            {/* Pestañas de Filtro de Tiempo Treinta */}
+            {/* Pestañas de Filtro de Tiempo */}
             <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 self-start sm:self-auto">
               {(['diario', 'semanal', 'mensual', 'anual'] as const).map((period) => (
                 <button
                   key={period}
                   onClick={() => setTimeFilter(period)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold capitalize transition-all ${
                     timeFilter === period
                       ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
                       : 'text-slate-500 hover:text-slate-900'
@@ -507,102 +604,127 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* 3 Tarjetas de Indicadores KPI Principales */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-all">
+          {/* 4 Tarjetas KPI de Alta Elegancia */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            {/* KPI 1: UTILIDAD TOTAL */}
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl border border-slate-700 shadow-lg relative overflow-hidden">
               <div className="flex justify-between items-start">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Utilidad total ({timeFilter})</span>
-                <span className="text-[11px] font-extrabold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  📈 +18.4%
+                <span className="text-[11px] font-extrabold text-slate-300 uppercase tracking-wider">Utilidad Neta ({timeFilter})</span>
+                <span className="text-[10px] font-extrabold text-emerald-300 bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  📈 Balance
                 </span>
               </div>
-              <div className="text-2xl font-black text-slate-900 mt-2">
+              <div className="text-2xl sm:text-3xl font-black text-white mt-2">
                 ${orders.reduce((acc, o) => acc + o.total_amount, 0).toLocaleString()}
               </div>
-              <span className="text-[11px] text-slate-400 font-medium mt-1 block">Balance neto acumulado del negocio</span>
+              <span className="text-[11px] text-slate-400 font-medium mt-1.5 block">Ganancia acumulada del negocio</span>
             </div>
 
-            <div className="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-200 hover:border-emerald-300 transition-all">
+            {/* KPI 2: VENTAS E INGRESOS */}
+            <div className="bg-emerald-50/70 p-5 rounded-2xl border border-emerald-200 hover:border-emerald-300 transition-all">
               <div className="flex justify-between items-start">
-                <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Ventas totales (+)</span>
-                <span className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">💵</span>
+                <span className="text-[11px] font-extrabold text-emerald-900 uppercase tracking-wider">Ingresos Totales (+)</span>
+                <span className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs">💵</span>
               </div>
-              <div className="text-2xl font-black text-emerald-600 mt-2">
+              <div className="text-2xl sm:text-3xl font-black text-emerald-700 mt-2">
                 + ${orders.filter(o => o.total_amount > 0).reduce((acc, o) => acc + o.total_amount, 0).toLocaleString()}
               </div>
-              <span className="text-[11px] text-emerald-700/80 font-semibold mt-1 block">{orders.filter(o => o.total_amount > 0).length} ingresos en este periodo</span>
+              <span className="text-[11px] text-emerald-800/80 font-semibold mt-1.5 block">{orders.filter(o => o.total_amount > 0).length} ventas registradas</span>
             </div>
 
-            <div className="bg-red-50/50 p-5 rounded-2xl border border-red-200 hover:border-red-300 transition-all">
+            {/* KPI 3: GASTOS OPERATIVOS */}
+            <div className="bg-red-50/70 p-5 rounded-2xl border border-red-200 hover:border-red-300 transition-all">
               <div className="flex justify-between items-start">
-                <span className="text-xs font-bold text-red-800 uppercase tracking-wider">Gastos totales (-)</span>
-                <span className="w-7 h-7 rounded-lg bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm">💸</span>
+                <span className="text-[11px] font-extrabold text-red-900 uppercase tracking-wider">Gastos / Salidas (-)</span>
+                <span className="w-7 h-7 rounded-lg bg-red-600 text-white flex items-center justify-center font-bold text-xs">💸</span>
               </div>
-              <div className="text-2xl font-black text-red-600 mt-2">
+              <div className="text-2xl sm:text-3xl font-black text-red-600 mt-2">
                 - ${Math.abs(orders.filter(o => o.total_amount < 0).reduce((acc, o) => acc + o.total_amount, 0)).toLocaleString()}
               </div>
-              <span className="text-[11px] text-red-700/80 font-semibold mt-1 block">{orders.filter(o => o.total_amount < 0).length} salidas / compras registradas</span>
+              <span className="text-[11px] text-red-800/80 font-semibold mt-1.5 block">{orders.filter(o => o.total_amount < 0).length} salidas reportadas</span>
+            </div>
+
+            {/* KPI 4: ESTADO DEL CATÁLOGO */}
+            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-slate-300 transition-all">
+              <div className="flex justify-between items-start">
+                <span className="text-[11px] font-extrabold text-slate-700 uppercase tracking-wider">Catálogo en Línea</span>
+                <span className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-xs">📦</span>
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+                {products.length} <span className="text-sm font-bold text-slate-500">ítems</span>
+              </div>
+              <span className="text-[11px] text-slate-600 font-semibold mt-1.5 block">Disponible 24/7 en tu web</span>
             </div>
           </div>
 
-          {/* Botones de Acción Prominentes Treinta Style */}
-          <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100">
+          {/* Botones de Acción Contable y Catálogo */}
+          <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-slate-100">
             <button
               onClick={handleQuickSale}
-              className="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm shadow-md shadow-emerald-500/20 flex items-center gap-2 transition-transform hover:scale-[1.02]"
+              className="px-5 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-emerald-500/20 flex items-center gap-2 transition-transform hover:scale-[1.02]"
             >
-              <Plus size={18} /> + Nueva venta / Ingreso
+              <Plus size={18} /> + Nuevo Ingreso / Venta
             </button>
             <button
               onClick={handleQuickExpense}
-              className="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-sm shadow-md shadow-red-500/20 flex items-center gap-2 transition-transform hover:scale-[1.02]"
+              className="px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs sm:text-sm shadow-md shadow-red-500/20 flex items-center gap-2 transition-transform hover:scale-[1.02]"
             >
-              <Trash2 size={18} /> - Nuevo gasto / Salida
+              <Trash2 size={18} /> - Registrar Gasto / Salida
             </button>
             <button
               onClick={() => {
                 setActiveTab('products');
                 setIsAdding(true);
-                window.scrollTo({ top: 500, behavior: 'smooth' });
+                window.scrollTo({ top: 600, behavior: 'smooth' });
               }}
-              className="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm shadow-md shadow-indigo-500/20 flex items-center gap-2 transition-transform hover:scale-[1.02]"
+              className="px-5 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs sm:text-sm shadow-md flex items-center gap-2 transition-transform hover:scale-[1.02]"
             >
-              <ShoppingBag size={18} /> + Nuevo producto / Ítem
+              <ShoppingBag size={18} /> + Cargar Nuevo Ítem
             </button>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex border-b border-slate-200 mb-8 gap-6 bg-white px-6 pt-3 rounded-t-2xl border-t border-x shadow-sm">
+        {/* TABS NAVEGACIÓN PRINCIPAL */}
+        <div className="flex flex-wrap items-center gap-2.5 bg-slate-900/95 p-2 rounded-2xl mb-8 shadow-xl border border-slate-800">
           <button 
             onClick={() => setActiveTab('products')}
-            className={`pb-3 font-extrabold text-base flex items-center gap-2 transition-colors border-b-2 ${
+            className={`px-5 py-3 rounded-xl font-black text-xs sm:text-sm flex items-center gap-2.5 transition-all ${
               activeTab === 'products' 
-                ? 'border-emerald-600 text-emerald-600' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25 scale-[1.02]' 
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
             }`}
           >
-            <ShoppingBag size={18} /> Gestión de {currentTmpl.itemLabel}s ({products.length})
+            <ShoppingBag size={18} /> Gestión de {currentTmpl.itemLabel}s
+            <span className={`text-[11px] px-2 py-0.5 rounded-full font-black ${activeTab === 'products' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-emerald-400'}`}>
+              {products.length}
+            </span>
           </button>
-          <button 
-            onClick={() => setActiveTab('settings')}
-            className={`pb-3 font-extrabold text-base flex items-center gap-2 transition-colors border-b-2 ${
-              activeTab === 'settings' 
-                ? 'border-emerald-600 text-emerald-600' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
-            }`}
-          >
-            <Settings size={18} /> Plantilla y Ajustes
-          </button>
+
           <button 
             onClick={() => setActiveTab('orders')}
-            className={`pb-3 font-extrabold text-base flex items-center gap-2 transition-colors border-b-2 ${
+            className={`px-5 py-3 rounded-xl font-black text-xs sm:text-sm flex items-center gap-2.5 transition-all ${
               activeTab === 'orders' 
-                ? 'border-emerald-600 text-emerald-600' 
-                : 'border-transparent text-slate-500 hover:text-slate-900'
+                ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25 scale-[1.02]' 
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
             }`}
           >
-            <Calendar size={18} /> {currentTmpl.managementTabTitle || '📦 Pedidos y Cuentas Corrientes'} {orders.length > 0 && <span className="bg-emerald-600 text-white text-xs px-2 py-0.5 rounded-full font-black">{orders.length}</span>}
+            <Calendar size={18} /> {currentTmpl.managementTabTitle || '📦 Pedidos y Libro Diario'}
+            {orders.length > 0 && (
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-black ${activeTab === 'orders' ? 'bg-slate-950/20 text-slate-950' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`}>
+                {orders.length}
+              </span>
+            )}
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('settings')}
+            className={`px-5 py-3 rounded-xl font-black text-xs sm:text-sm flex items-center gap-2.5 transition-all ${
+              activeTab === 'settings' 
+                ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25 scale-[1.02]' 
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Settings size={18} /> Personalización y Plantillas
           </button>
         </div>
 
