@@ -65,6 +65,7 @@ export default function RegisterPage() {
         template_id: selectedTemplate,
         theme_color: tmpl.themeColor,
         font_family: tmpl.fontFamily === 'font-serif' ? 'elegant' : tmpl.fontFamily === 'font-mono' ? 'playful' : 'modern',
+        enabled_payment_methods: [], // POR DEFECTO NINGUNO ACTIVADO
         subscription_status: 'pending' // SUSCRIPCIÓN OBLIGATORIA PENDIENTE
       };
 

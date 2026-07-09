@@ -141,9 +141,8 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
   const [dateVal, setDateVal] = useState('');
   const [timeVal, setTimeVal] = useState('');
   const [takenSlots, setTakenSlots] = useState<string[]>([]);
-
-  // Estado para pasarelas de pago (Mercado Pago / Stripe / WhatsApp)
-  const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'mercadopago' | 'stripe'>('mercadopago');
+  // Estado para pasarelas y métodos de pago
+  const [paymentMethod, setPaymentMethod] = useState<string>('');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -158,20 +157,32 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
     if (savedOrders) {
       const orders: OrderMovement[] = JSON.parse(savedOrders);
       const taken = orders
-        .filter(o => o.date_val === dateVal && o.time_val && o.status !== 'delivered')
-        .map(o => o.time_val!);
+        .filter(o => o.date_val === dateVal && o.time_val)
+        .map(o => o.time_val as string);
       setTakenSlots(taken);
+    } else {
+      setTakenSlots([]);
     }
   }, [dateVal, storeData, isCartOpen]);
 
   useEffect(() => {
-    const savedStore = localStorage.getItem('fluxa_current_store');
     let store = null;
+    const allRaw = localStorage.getItem('fluxa_all_stores');
+    if (allRaw) {
+      try {
+        const all = JSON.parse(allRaw);
+        const found = all.find((s: any) => s.slug === slug);
+        if (found) store = found;
+      } catch (e) {}
+    }
 
-    if (savedStore) {
-      const parsed = JSON.parse(savedStore);
-      if (parsed.slug === slug || slug === 'demo') {
-        store = parsed;
+    if (!store) {
+      const savedStore = localStorage.getItem('fluxa_current_store');
+      if (savedStore) {
+        const parsed = JSON.parse(savedStore);
+        if (parsed.slug === slug || slug === 'demo') {
+          store = parsed;
+        }
       }
     }
 
@@ -183,11 +194,18 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
         whatsapp_number: "59894968558",
         theme_color: "#00D7C0",
         template_id: "ecommerce",
-        subscription_status: "active"
+        subscription_status: "active",
+        enabled_payment_methods: []
       };
     }
 
     setStoreData(store);
+    const enabled = Array.isArray(store.enabled_payment_methods) ? store.enabled_payment_methods : [];
+    if (enabled.length > 0) {
+      setPaymentMethod(enabled[0]);
+    } else {
+      setPaymentMethod('');
+    }
 
     const savedProducts = localStorage.getItem(`fluxa_products_${store.id}`);
     if (savedProducts) {
@@ -703,67 +721,114 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                       </div>
                     </div>
 
-                    {/* Selector de Pasarela de Pago Directo */}
+                    {/* Selector Dinámico de Forma de Pago */}
                     <div className="pt-2">
                       <label className="block text-[11px] font-bold opacity-80 mb-2">💳 Elige tu Forma de Pago:</label>
-                      <div className="space-y-2">
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod('mercadopago')}
-                          className={`w-full p-3 rounded-xl border text-left flex items-center justify-between gap-3 transition-all ${
-                            paymentMethod === 'mercadopago' 
-                              ? 'bg-blue-500/10 border-blue-500 shadow-md ring-1 ring-blue-500 font-bold' 
-                              : 'bg-black/5 border-black/10 opacity-70 hover:opacity-100'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-xs shrink-0">MP</div>
-                            <div>
-                              <span className="text-xs block leading-tight font-extrabold">Mercado Pago (Online)</span>
-                              <span className="text-[10px] opacity-70">Tarjetas, Débito, RedPagos, Abitab • Uruguay / LATAM</span>
-                            </div>
+                      
+                      {(!Array.isArray(storeData?.enabled_payment_methods) || storeData.enabled_payment_methods.length === 0) ? (
+                        <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs">
+                          <div className="font-extrabold flex items-center gap-1.5 mb-1">
+                            <span>💬 Pago a Coordinar con la Tienda</span>
                           </div>
-                          {paymentMethod === 'mercadopago' && <CheckCircle2 size={18} className="text-blue-500 shrink-0" />}
-                        </button>
+                          <p className="text-[11px] opacity-80">
+                            Esta tienda coordinará el medio de pago (efectivo, transferencia o tarjeta) directamente contigo por WhatsApp al recibir el pedido.
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {storeData.enabled_payment_methods.includes('mercadopago') && (
+                            <button
+                              type="button"
+                              onClick={() => setPaymentMethod('mercadopago')}
+                              className={`w-full p-3 rounded-xl border text-left flex items-center justify-between gap-3 transition-all ${
+                                paymentMethod === 'mercadopago' 
+                                  ? 'bg-blue-500/10 border-blue-500 shadow-md ring-1 ring-blue-500 font-bold' 
+                                  : 'bg-black/5 border-black/10 opacity-70 hover:opacity-100'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black text-xs shrink-0">MP</div>
+                                <div>
+                                  <span className="text-xs block leading-tight font-extrabold">Mercado Pago (Online)</span>
+                                  <span className="text-[10px] opacity-70">Tarjetas, Débito, RedPagos, Abitab • Uruguay / LATAM</span>
+                                </div>
+                              </div>
+                              {paymentMethod === 'mercadopago' && <CheckCircle2 size={18} className="text-blue-500 shrink-0" />}
+                            </button>
+                          )}
 
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod('stripe')}
-                          className={`w-full p-3 rounded-xl border text-left flex items-center justify-between gap-3 transition-all ${
-                            paymentMethod === 'stripe' 
-                              ? 'bg-purple-500/10 border-purple-500 shadow-md ring-1 ring-purple-500 font-bold' 
-                              : 'bg-black/5 border-black/10 opacity-70 hover:opacity-100'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-black text-xs shrink-0">St</div>
-                            <div>
-                              <span className="text-xs block leading-tight font-extrabold">Stripe (Tarjeta Internacional)</span>
-                              <span className="text-[10px] opacity-70">Visa, Mastercard, Apple Pay en USD / EUR</span>
+                          {storeData.enabled_payment_methods.includes('transferencia') && (
+                            <div className="space-y-2">
+                              <button
+                                type="button"
+                                onClick={() => setPaymentMethod('transferencia')}
+                                className={`w-full p-3 rounded-xl border text-left flex items-center justify-between gap-3 transition-all ${
+                                  paymentMethod === 'transferencia' 
+                                    ? 'bg-emerald-500/10 border-emerald-500 shadow-md ring-1 ring-emerald-500 font-bold' 
+                                    : 'bg-black/5 border-black/10 opacity-70 hover:opacity-100'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2.5">
+                                  <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0">🏦</div>
+                                  <div>
+                                    <span className="text-xs block leading-tight font-extrabold">Transferencia Bancaria directo</span>
+                                    <span className="text-[10px] opacity-70">Transfiere y adjunta el comprobante a la tienda</span>
+                                  </div>
+                                </div>
+                                {paymentMethod === 'transferencia' && <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />}
+                              </button>
+                              {paymentMethod === 'transferencia' && storeData.bank_details && (
+                                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-mono whitespace-pre-wrap">
+                                  <strong>Datos Bancarios de la Tienda:</strong>
+                                  <div>{storeData.bank_details}</div>
+                                </div>
+                              )}
                             </div>
-                          </div>
-                          {paymentMethod === 'stripe' && <CheckCircle2 size={18} className="text-purple-500 shrink-0" />}
-                        </button>
+                          )}
 
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMethod('whatsapp')}
-                          className={`w-full p-3 rounded-xl border text-left flex items-center justify-between gap-3 transition-all ${
-                            paymentMethod === 'whatsapp' 
-                              ? 'bg-emerald-500/10 border-emerald-500 shadow-md ring-1 ring-emerald-500 font-bold' 
-                              : 'bg-black/5 border-black/10 opacity-70 hover:opacity-100'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0">💬</div>
-                            <div>
-                              <span className="text-xs block leading-tight font-extrabold">Acordar Pago con Vendedor</span>
-                              <span className="text-[10px] opacity-70">Pago en efectivo, transferencia o al retirar por WhatsApp</span>
-                            </div>
-                          </div>
-                          {paymentMethod === 'whatsapp' && <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />}
-                        </button>
-                      </div>
+                          {storeData.enabled_payment_methods.includes('whatsapp') && (
+                            <button
+                              type="button"
+                              onClick={() => setPaymentMethod('whatsapp')}
+                              className={`w-full p-3 rounded-xl border text-left flex items-center justify-between gap-3 transition-all ${
+                                paymentMethod === 'whatsapp' 
+                                  ? 'bg-amber-500/10 border-amber-500 shadow-md ring-1 ring-amber-500 font-bold' 
+                                  : 'bg-black/5 border-black/10 opacity-70 hover:opacity-100'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-black text-xs shrink-0">💵</div>
+                                <div>
+                                  <span className="text-xs block leading-tight font-extrabold">Efectivo / Acordar por WhatsApp</span>
+                                  <span className="text-[10px] opacity-70">{storeData.cash_instructions || 'Pago en efectivo o al retirar pedido'}</span>
+                                </div>
+                              </div>
+                              {paymentMethod === 'whatsapp' && <CheckCircle2 size={18} className="text-amber-500 shrink-0" />}
+                            </button>
+                          )}
+
+                          {storeData.enabled_payment_methods.includes('stripe') && (
+                            <button
+                              type="button"
+                              onClick={() => setPaymentMethod('stripe')}
+                              className={`w-full p-3 rounded-xl border text-left flex items-center justify-between gap-3 transition-all ${
+                                paymentMethod === 'stripe' 
+                                  ? 'bg-purple-500/10 border-purple-500 shadow-md ring-1 ring-purple-500 font-bold' 
+                                  : 'bg-black/5 border-black/10 opacity-70 hover:opacity-100'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-black text-xs shrink-0">St</div>
+                                <div>
+                                  <span className="text-xs block leading-tight font-extrabold">Stripe (Tarjeta Internacional)</span>
+                                  <span className="text-[10px] opacity-70">Visa, Mastercard, Apple Pay en USD / EUR</span>
+                                </div>
+                              </div>
+                              {paymentMethod === 'stripe' && <CheckCircle2 size={18} className="text-purple-500 shrink-0" />}
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     <button 
@@ -771,10 +836,10 @@ export default function StorefrontPage({ params }: { params: Promise<{ slug: str
                       className="w-full py-3.5 rounded-xl font-extrabold text-white flex items-center justify-center gap-2 shadow-xl hover:scale-[1.02] transition-transform mt-4"
                       style={{ backgroundColor: brandColor }}
                     >
-                      {paymentMethod === 'whatsapp' ? (
-                        <><Send size={18} /> Enviar Pedido por WhatsApp</>
-                      ) : (
+                      {(paymentMethod === 'mercadopago' || paymentMethod === 'stripe') ? (
                         <><CreditCard size={18} /> Continuar a Pago Online (${totalPrice})</>
+                      ) : (
+                        <><Send size={18} /> Enviar Pedido por WhatsApp</>
                       )}
                     </button>
 

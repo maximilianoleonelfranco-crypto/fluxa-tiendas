@@ -41,6 +41,11 @@ export default function DashboardPage() {
   const [mpPublicKey, setMpPublicKey] = useState('');
   const [stripeKey, setStripeKey] = useState('');
 
+  // Métodos de pago habilitados en la tienda (POR DEFECTO NINGUNO = [])
+  const [enabledPaymentMethods, setEnabledPaymentMethods] = useState<string[]>([]);
+  const [bankDetails, setBankDetails] = useState('');
+  const [cashInstructions, setCashInstructions] = useState('');
+
   // Estado del tutorial interactivo
   const [showTutorial, setShowTutorial] = useState(true);
 
@@ -64,6 +69,10 @@ export default function DashboardPage() {
     setTemplateId(parsedStore.template_id || DEFAULT_TEMPLATE);
     setMpPublicKey(parsedStore.mp_public_key || '');
     setStripeKey(parsedStore.stripe_key || '');
+    setEnabledPaymentMethods(Array.isArray(parsedStore.enabled_payment_methods) ? parsedStore.enabled_payment_methods : []);
+    setBankDetails(parsedStore.bank_details || '');
+    setCashInstructions(parsedStore.cash_instructions || '');
+
     if (parsedStore.available_slots && Array.isArray(parsedStore.available_slots)) {
       setAvailableSlots(parsedStore.available_slots);
     } else {
@@ -234,6 +243,12 @@ export default function DashboardPage() {
     localStorage.setItem(`fluxa_products_${storeData.id}`, JSON.stringify(updated));
   };
 
+  const togglePaymentMethod = (methodId: string) => {
+    setEnabledPaymentMethods(prev =>
+      prev.includes(methodId) ? prev.filter(m => m !== methodId) : [...prev, methodId]
+    );
+  };
+
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
     if (!storeData) return;
@@ -251,11 +266,24 @@ export default function DashboardPage() {
       mp_public_key: mpPublicKey,
       stripe_key: stripeKey,
       available_slots: availableSlots,
+      enabled_payment_methods: enabledPaymentMethods,
+      bank_details: bankDetails,
+      cash_instructions: cashInstructions,
       font_family: tmpl.fontFamily === 'font-serif' ? 'elegant' : tmpl.fontFamily === 'font-mono' ? 'playful' : 'modern'
     };
     setStoreData(updated);
     localStorage.setItem('fluxa_current_store', JSON.stringify(updated));
-    alert('¡Configuración guardada! Tu web adoptó el nuevo diseño y paleta.');
+
+    const allRaw = localStorage.getItem('fluxa_all_stores');
+    if (allRaw) {
+      try {
+        const all = JSON.parse(allRaw);
+        const updatedAll = all.map((s: any) => s.id === storeData.id ? updated : s);
+        localStorage.setItem('fluxa_all_stores', JSON.stringify(updatedAll));
+      } catch (e) {}
+    }
+
+    alert('¡Configuración guardada! Tus métodos de pago y diseño se han actualizado en tiempo real.');
   };
 
   const handleLogout = () => {
@@ -1057,71 +1085,179 @@ export default function DashboardPage() {
                 </div>
               )}
 
-              {/* Conexión de Pasarelas de Pago Directo */}
+              {/* Métodos de Pago Habilitados en la Tienda */}
               <div className="pt-6 border-t border-slate-200">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-base font-extrabold text-slate-900 flex items-center gap-2">
-                    <CreditCard className="text-emerald-600" size={20} /> Conexión de Pasarelas de Pago Directo (0% Comisión Fluxa)
+                  <label className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                    <CreditCard className="text-emerald-600" size={20} /> Métodos de Pago Habilitados en tu Tienda
                   </label>
-                  <span className="text-xs bg-emerald-100 text-emerald-800 font-bold px-3 py-1 rounded-full">Cobro en Línea Activo</span>
+                  <span className="text-xs bg-slate-900 text-amber-400 font-extrabold px-3 py-1 rounded-full">
+                    {enabledPaymentMethods.length === 0 ? '⚠️ Ninguno Activado (Por defecto)' : `${enabledPaymentMethods.length} método(s) activo(s)`}
+                  </span>
                 </div>
                 <p className="text-xs text-slate-500 font-medium mb-5 leading-relaxed">
-                  Conecta tus cuentas bancarias o pasarelas para que tus clientes puedan pagarte al instante con tarjeta, débito o redes de cobranza (Abitab / RedPagos / Oxxo). El dinero va directo a tu cuenta sin intermediarios.
+                  Activa únicamente las formas de pago con las que deseas cobrar a tus clientes. Por defecto tu tienda inicia sin ninguno activado para que tú elijas exactamente cuáles habilitar.
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm">
-                  <div className="space-y-3">
+                <div className="space-y-4">
+                  {/* 1. Mercado Pago */}
+                  <div className={`p-4 rounded-2xl border transition-all ${enabledPaymentMethods.includes('mercadopago') ? 'bg-blue-50/50 border-blue-400 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-80'}`}>
                     <div className="flex items-center justify-between">
-                      <span className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-                        🤝 Mercado Pago (Uruguay / LATAM)
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center shadow-sm">MP</div>
+                        <div>
+                          <span className="font-extrabold text-slate-900 text-sm block">Mercado Pago (Online Uruguay & LATAM)</span>
+                          <span className="text-[11px] text-slate-500 font-medium">Tarjetas de crédito, débito, Abitab, RedPagos y dinero en cuenta.</span>
+                        </div>
+                      </div>
                       <button
                         type="button"
-                        onClick={() => {
-                          const mockKey = `APP-USR-${Math.floor(100000 + Math.random() * 900000)}-${Date.now().toString().slice(-4)}`;
-                          setMpPublicKey(mockKey);
-                          alert('¡Conexión exitosa! Cuenta de Mercado Pago vinculada para cobros en moneda local (UYU/ARS/BRL/CLP/MXN).');
-                        }}
-                        className="text-[11px] font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg border border-blue-200 transition-colors"
+                        onClick={() => togglePaymentMethod('mercadopago')}
+                        className={`px-4 py-1.5 rounded-xl font-black text-xs transition-all ${
+                          enabledPaymentMethods.includes('mercadopago')
+                            ? 'bg-blue-600 text-white shadow-md'
+                            : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-100'
+                        }`}
                       >
-                        ⚡ Vincular con 1 Clic
+                        {enabledPaymentMethods.includes('mercadopago') ? '✓ ACTIVADO' : 'ACTIVAR'}
                       </button>
                     </div>
-                    <p className="text-[11px] text-slate-500 font-medium">Permite cobros con tarjetas de crédito, débito, dinero en cuenta y redes de cobranza locales (Abitab, RedPagos, etc.).</p>
-                    <input 
-                      type="text" 
-                      className="form-control text-xs font-mono bg-white border-slate-300 text-slate-900" 
-                      placeholder="Public Key / Access Token de MP (Ej: APP-USR-...)" 
-                      value={mpPublicKey} 
-                      onChange={e => setMpPublicKey(e.target.value)} 
-                    />
+
+                    {enabledPaymentMethods.includes('mercadopago') && (
+                      <div className="mt-4 pt-3 border-t border-blue-200/60 space-y-2 animate-in fade-in duration-200">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-slate-700">Public Key / Access Token de Mercado Pago:</label>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const mockKey = `APP-USR-${Math.floor(100000 + Math.random() * 900000)}-${Date.now().toString().slice(-4)}`;
+                              setMpPublicKey(mockKey);
+                            }}
+                            className="text-[10px] font-bold text-blue-600 bg-blue-100 px-2.5 py-0.5 rounded-md hover:bg-blue-200"
+                          >
+                            ⚡ Generar Key de Prueba
+                          </button>
+                        </div>
+                        <input 
+                          type="text" 
+                          className="form-control text-xs font-mono bg-white border-blue-300 text-slate-900" 
+                          placeholder="Ej: APP-USR-1234567890..." 
+                          value={mpPublicKey} 
+                          onChange={e => setMpPublicKey(e.target.value)} 
+                        />
+                      </div>
+                    )}
                   </div>
 
-                  <div className="space-y-3">
+                  {/* 2. Transferencia Bancaria */}
+                  <div className={`p-4 rounded-2xl border transition-all ${enabledPaymentMethods.includes('transferencia') ? 'bg-emerald-50/50 border-emerald-400 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-80'}`}>
                     <div className="flex items-center justify-between">
-                      <span className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
-                        🌍 Stripe Connect (Internacional / Global)
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white font-black text-xs flex items-center justify-center shadow-sm">🏦</div>
+                        <div>
+                          <span className="font-extrabold text-slate-900 text-sm block">Transferencia Bancaria / CBU / Alias</span>
+                          <span className="text-[11px] text-slate-500 font-medium">El cliente te transfiere directo a tu cuenta y adjunta el comprobante.</span>
+                        </div>
+                      </div>
                       <button
                         type="button"
-                        onClick={() => {
-                          const mockStripe = `pk_live_${Math.floor(10000000 + Math.random() * 90000000)}`;
-                          setStripeKey(mockStripe);
-                          alert('¡Conexión exitosa con Stripe! Ahora puedes recibir pagos internacionales en USD y EUR con Visa, Mastercard y Apple Pay.');
-                        }}
-                        className="text-[11px] font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 px-2.5 py-1 rounded-lg border border-purple-200 transition-colors"
+                        onClick={() => togglePaymentMethod('transferencia')}
+                        className={`px-4 py-1.5 rounded-xl font-black text-xs transition-all ${
+                          enabledPaymentMethods.includes('transferencia')
+                            ? 'bg-emerald-600 text-white shadow-md'
+                            : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-100'
+                        }`}
                       >
-                        ⚡ Conectar Stripe Global
+                        {enabledPaymentMethods.includes('transferencia') ? '✓ ACTIVADO' : 'ACTIVAR'}
                       </button>
                     </div>
-                    <p className="text-[11px] text-slate-500 font-medium">Ideal para vender productos o servicios al mundo entero en dólares (USD) o euros (EUR) con altísima seguridad SSL.</p>
-                    <input 
-                      type="text" 
-                      className="form-control text-xs font-mono bg-white border-slate-300 text-slate-900" 
-                      placeholder="Stripe Publishable Key (Ej: pk_live_...)" 
-                      value={stripeKey} 
-                      onChange={e => setStripeKey(e.target.value)} 
-                    />
+
+                    {enabledPaymentMethods.includes('transferencia') && (
+                      <div className="mt-4 pt-3 border-t border-emerald-200/60 space-y-2 animate-in fade-in duration-200">
+                        <label className="text-xs font-bold text-slate-700">Datos Bancarios para tus clientes (Banco, CBU / Cuenta, Alias, Titular):</label>
+                        <textarea 
+                          rows={2}
+                          className="form-control text-xs bg-white border-emerald-300 text-slate-900" 
+                          placeholder="Ej: Banco BROU / Itaú • Cuenta Corriente #123456 • Alias: mi.tienda.fluxa • Titular: Juan Pérez" 
+                          value={bankDetails} 
+                          onChange={e => setBankDetails(e.target.value)} 
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 3. Acordar con Vendedor / Efectivo */}
+                  <div className={`p-4 rounded-2xl border transition-all ${enabledPaymentMethods.includes('whatsapp') ? 'bg-amber-50/50 border-amber-400 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-80'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center shadow-sm">💵</div>
+                        <div>
+                          <span className="font-extrabold text-slate-900 text-sm block">Efectivo / Acordar por WhatsApp al Retirar</span>
+                          <span className="text-[11px] text-slate-500 font-medium">El cliente coordina el pago en efectivo o contraentrega por chat.</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => togglePaymentMethod('whatsapp')}
+                        className={`px-4 py-1.5 rounded-xl font-black text-xs transition-all ${
+                          enabledPaymentMethods.includes('whatsapp')
+                            ? 'bg-amber-500 text-slate-950 shadow-md'
+                            : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-100'
+                        }`}
+                      >
+                        {enabledPaymentMethods.includes('whatsapp') ? '✓ ACTIVADO' : 'ACTIVAR'}
+                      </button>
+                    </div>
+
+                    {enabledPaymentMethods.includes('whatsapp') && (
+                      <div className="mt-4 pt-3 border-t border-amber-200/60 space-y-2 animate-in fade-in duration-200">
+                        <label className="text-xs font-bold text-slate-700">Instrucciones o nota opcional para el cliente:</label>
+                        <input 
+                          type="text"
+                          className="form-control text-xs bg-white border-amber-300 text-slate-900" 
+                          placeholder="Ej: Pago en mostrador o al repartidor al recibir el pedido." 
+                          value={cashInstructions} 
+                          onChange={e => setCashInstructions(e.target.value)} 
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4. Stripe Global */}
+                  <div className={`p-4 rounded-2xl border transition-all ${enabledPaymentMethods.includes('stripe') ? 'bg-purple-50/50 border-purple-400 shadow-sm' : 'bg-slate-50 border-slate-200 opacity-80'}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-purple-600 text-white font-black text-xs flex items-center justify-center shadow-sm">St</div>
+                        <div>
+                          <span className="font-extrabold text-slate-900 text-sm block">Stripe (Tarjetas Internacionales USD/EUR)</span>
+                          <span className="text-[11px] text-slate-500 font-medium">Cobros en dólares o euros con Visa, Mastercard y Apple Pay.</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => togglePaymentMethod('stripe')}
+                        className={`px-4 py-1.5 rounded-xl font-black text-xs transition-all ${
+                          enabledPaymentMethods.includes('stripe')
+                            ? 'bg-purple-600 text-white shadow-md'
+                            : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-100'
+                        }`}
+                      >
+                        {enabledPaymentMethods.includes('stripe') ? '✓ ACTIVADO' : 'ACTIVAR'}
+                      </button>
+                    </div>
+
+                    {enabledPaymentMethods.includes('stripe') && (
+                      <div className="mt-4 pt-3 border-t border-purple-200/60 space-y-2 animate-in fade-in duration-200">
+                        <label className="text-xs font-bold text-slate-700">Stripe Publishable Key:</label>
+                        <input 
+                          type="text" 
+                          className="form-control text-xs font-mono bg-white border-purple-300 text-slate-900" 
+                          placeholder="Ej: pk_live_..." 
+                          value={stripeKey} 
+                          onChange={e => setStripeKey(e.target.value)} 
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
