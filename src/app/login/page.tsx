@@ -26,7 +26,7 @@ export default function LoginPage() {
       }
 
       const allStoresRaw = localStorage.getItem('fluxa_all_stores');
-      let allStores: any[] = allStoresRaw ? JSON.parse(allStoresRaw) : [];
+      const allStores: any[] = allStoresRaw ? JSON.parse(allStoresRaw) : [];
 
       // Buscar o crear la tienda VIP Admin de prueba con suscripción activa PRO
       let adminStore = allStores.find(s => s.email?.toLowerCase() === 'admin' || s.id === 'store-admin-vip');

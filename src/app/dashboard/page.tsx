@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { 
   Store, Plus, Trash2, ExternalLink, Settings, 
   ShoppingBag, CheckCircle2, LogOut, Smartphone, DollarSign, Image as ImageIcon,
-  Sparkles, ArrowRight, Check, HelpCircle, Gift, Award, Calendar, Clock, User, Phone, MapPin, MessageSquare, Filter, CreditCard, CheckCircle,
+  Sparkles, ArrowRight, Check, HelpCircle, Gift, Award, Calendar, Clock, User, Users, Phone, MapPin, MessageSquare, Filter, CreditCard, CheckCircle,
   Copy, Share2, Eye, TrendingUp, Layers, Palette, Zap
 } from 'lucide-react';
 import { Product, OrderMovement } from '@/lib/supabase';
@@ -18,7 +18,11 @@ export default function DashboardPage() {
   const [storeData, setStoreData] = useState<any>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<OrderMovement[]>([]);
-  const [activeTab, setActiveTab] = useState<'products' | 'settings' | 'orders'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'settings' | 'orders' | 'clients'>('products');
+  const [clients, setClients] = useState<{ id: string; name: string; phone: string; balance: number; notes: string }[]>([]);
+  const [newClientName, setNewClientName] = useState('');
+  const [newClientPhone, setNewClientPhone] = useState('');
+  const [newClientBalance, setNewClientBalance] = useState('');
   const [orderFilter, setOrderFilter] = useState<'all' | 'unpaid' | 'in_progress' | 'delivered'>('all');
   const [timeFilter, setTimeFilter] = useState<'diario' | 'semanal' | 'mensual' | 'anual'>('mensual');
 
@@ -102,6 +106,11 @@ export default function DashboardPage() {
         });
       } else {
         setOrders([]);
+      }
+
+      const savedClients = localStorage.getItem(`fluxa_clients_${parsedStore.id}`);
+      if (savedClients) {
+        setClients(JSON.parse(savedClients));
       }
     };
 
@@ -289,6 +298,34 @@ export default function DashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem('fluxa_current_store');
     router.push('/login');
+  };
+
+  const handleAddClient = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newClientName) return;
+    const newClient = {
+      id: Date.now().toString(),
+      name: newClientName,
+      phone: newClientPhone,
+      balance: Number(newClientBalance) || 0,
+      notes: 'Cliente registrado'
+    };
+    const updated = [newClient, ...clients];
+    setClients(updated);
+    if (storeData) {
+      localStorage.setItem(`fluxa_clients_${storeData.id}`, JSON.stringify(updated));
+    }
+    setNewClientName('');
+    setNewClientPhone('');
+    setNewClientBalance('');
+  };
+
+  const handleDeleteClient = (id: string) => {
+    const updated = clients.filter(c => c.id !== id);
+    setClients(updated);
+    if (storeData) {
+      localStorage.setItem(`fluxa_clients_${storeData.id}`, JSON.stringify(updated));
+    }
   };
 
   if (!storeData) return null;
@@ -740,6 +777,22 @@ export default function DashboardPage() {
             {orders.length > 0 && (
               <span className={`text-[11px] px-2 py-0.5 rounded-full font-black ${activeTab === 'orders' ? 'bg-slate-950/20 text-slate-950' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`}>
                 {orders.length}
+              </span>
+            )}
+          </button>
+
+          <button 
+            onClick={() => setActiveTab('clients')}
+            className={`px-5 py-3 rounded-xl font-black text-xs sm:text-sm flex items-center gap-2.5 transition-all ${
+              activeTab === 'clients' 
+                ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/25 scale-[1.02]' 
+                : 'text-slate-300 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <Users size={18} /> Clientes & Deudas
+            {clients.length > 0 && (
+              <span className={`text-[11px] px-2 py-0.5 rounded-full font-black ${activeTab === 'clients' ? 'bg-slate-950/20 text-slate-950' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'}`}>
+                {clients.length}
               </span>
             )}
           </button>
@@ -1486,6 +1539,115 @@ export default function DashboardPage() {
                       </div>
                     );
                   })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 4: CLIENTES & DEUDAS / CUENTAS CORRIENTES */}
+        {activeTab === 'clients' && (
+          <div className="bg-white p-7 rounded-3xl border border-slate-200 shadow-sm -mt-8 pt-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                  <Users size={22} className="text-emerald-600" /> Directorio de Clientes & Cuentas Corrientes
+                </h2>
+                <p className="text-xs text-slate-500 font-medium mt-1">
+                  Administra tu base de clientes, registra saldos pendientes (deudas) y envía recordatorios por WhatsApp.
+                </p>
+              </div>
+            </div>
+
+            {/* Formulario de Alta Rápida de Cliente */}
+            <form onSubmit={handleAddClient} className="bg-slate-50 p-6 rounded-2xl border border-slate-200 mb-8 grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              <div>
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1">Nombre o Empresa</label>
+                <input
+                  type="text"
+                  placeholder="Ej: Carlos Silva"
+                  value={newClientName}
+                  onChange={e => setNewClientName(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1">WhatsApp / Teléfono</label>
+                <input
+                  type="text"
+                  placeholder="Ej: 099123456"
+                  value={newClientPhone}
+                  onChange={e => setNewClientPhone(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider mb-1">Deuda Pendiente ($)</label>
+                <input
+                  type="number"
+                  placeholder="Ej: 1500 (0 si no debe)"
+                  value={newClientBalance}
+                  onChange={e => setNewClientBalance(e.target.value)}
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-sm shadow-md transition-all flex items-center justify-center gap-1.5"
+              >
+                + Registrar Cliente
+              </button>
+            </form>
+
+            {/* Lista de Clientes */}
+            {clients.length === 0 ? (
+              <div className="text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                <Users size={36} className="mx-auto text-slate-300 mb-3" />
+                <p className="text-slate-600 font-extrabold text-sm">Aún no has registrado clientes</p>
+                <p className="text-slate-400 text-xs mt-1">Registra aquí a tus compradores habituales o deudores para llevar sus cuentas.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {clients.map(client => (
+                  <div key={client.id} className="p-5 rounded-2xl border border-slate-200 bg-white hover:border-emerald-500 transition-all shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="font-black text-slate-900 text-base">{client.name}</h4>
+                        <button
+                          onClick={() => handleDeleteClient(client.id)}
+                          className="text-slate-400 hover:text-red-500 text-xs transition-colors"
+                          title="Eliminar cliente"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <p className="text-xs text-slate-500 font-semibold mb-3">📞 {client.phone || 'Sin número'}</p>
+                      
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 mb-4">
+                        <span className="text-[10px] font-extrabold uppercase text-slate-400 block mb-1">Estado de Cuenta</span>
+                        {client.balance > 0 ? (
+                          <span className="text-sm font-black text-red-600">Debe: ${client.balance.toLocaleString()} UYU</span>
+                        ) : (
+                          <span className="text-sm font-black text-emerald-600">Al día ($0 pendiente)</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {client.phone && (
+                      <a
+                        href={`https://api.whatsapp.com/send?phone=${client.phone.replace(/\D/g, '')}&text=${encodeURIComponent(`Hola ${client.name}, te escribimos desde ${storeData.name}. Estado de cuenta actual: ${client.balance > 0 ? `Saldo pendiente de $${client.balance}` : 'Al día'}.`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full py-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-xs text-center block transition-all border border-emerald-200"
+                      >
+                        💬 WhatsApp Cliente
+                      </a>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
